@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: transparent;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    width: 400px;
+    height: 70px;
+    overflow: hidden;
+  }
+
+  #box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 15, 0.93);
+    border-left: 5px solid #00d4ff;
+    border-radius: 6px;
+    padding: 0 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  #box.visible { opacity: 1; }
+
+  #box.info    { border-left-color: #00d4ff; }
+  #box.success { border-left-color: #00e676; }
+  #box.warning { border-left-color: #ffab00; }
+  #box.error   { border-left-color: #ff1744; }
+
+  .icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+  }
+
+  .icon.info    { color: #00d4ff; }
+  .icon.success { color: #00e676; }
+  .icon.warning { color: #ffab00; }
+  .icon.error   { color: #ff1744; }
+
+  .texts {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .title {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  .msg {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    line-height: 1.3;
+  }
+</style>
+</head>
+<body>
+  <div id="box">
+    <div class="icon" id="icon">&#9432;</div>
+    <div class="texts">
+      <div class="title" id="title">Notification</div>
+      <div class="msg"   id="msg">Message here.</div>
+    </div>
+  </div>
+
+  <script>
+    var hideTimer = null;
+
+    var icons = {
+      info:    '&#9432;',
+      success: '&#10003;',
+      warning: '&#9888;',
+      error:   '&#10007;'
+    };
+
+    window.addEventListener('message', function(e) {
+      var d = e.data;
+      if (d && d.action === 'show') {
+        show(d.title, d.message, d.type, d.duration);
+      }
+    });
+
+    function show(title, message, type, duration) {
+      var box   = document.getElementById('box');
+      var icon  = document.getElementById('icon');
+      var ttl   = document.getElementById('title');
+      var msg   = document.getElementById('msg');
+
+      if (hideTimer) clearTimeout(hideTimer);
+
+      type = type || 'info';
+
+      box.className   = type;
+      icon.className  = 'icon ' + type;
+      icon.innerHTML  = icons[type] || icons.info;
+      ttl.textContent = title   || 'Notification';
+      msg.textContent = message || '';
+
+      // force reflow so transition fires
+      void box.offsetWidth;
+      box.classList.add('visible');
+
+      hideTimer = setTimeout(function() {
+        box.classList.remove('visible');
+      }, (duration || 5) * 1000);
+    }
+  </script>
+</body>
+</html>
