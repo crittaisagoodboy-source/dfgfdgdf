@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: transparent;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    width: 600px;
+    height: 400px;
+    overflow: hidden;
+  }
+
+  #menu {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 15, 0.96);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  #menu.visible { display: flex; }
+
+  #header {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  #header .title {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  #header .subtitle {
+    color: rgba(255,255,255,0.35);
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 12px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 12px 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    position: relative;
+  }
+
+  .item.selected {
+    background: rgba(0, 212, 255, 0.12);
+    border-color: #00d4ff;
+  }
+
+  .item .icon {
+    font-size: 20px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .item.selected .icon { color: #00d4ff; }
+
+  .item .label {
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.2px;
+  }
+
+  .item.selected .label { color: #fff; }
+
+  #footer {
+    padding: 8px 14px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    gap: 16px;
+  }
+
+  .hint {
+    color: rgba(255,255,255,0.3);
+    font-size: 10px;
+  }
+
+  .hint span {
+    color: rgba(255,255,255,0.6);
+    font-weight: 700;
+    background: rgba(255,255,255,0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-right: 3px;
+  }
+</style>
+</head>
+<body>
+  <div id="menu">
+    <div id="header">
+      <div class="title" id="menu-title">Menu</div>
+      <div class="subtitle">Use arrow keys to navigate, ENTER to select</div>
+    </div>
+    <div id="grid"></div>
+    <div id="footer">
+      <div class="hint"><span>↑↓←→</span> Navigate</div>
+      <div class="hint"><span>ENTER</span> Select</div>
+      <div class="hint"><span>DEL</span> Close</div>
+    </div>
+  </div>
+
+  <script>
+    var items    = [];
+    var selected = 0;
+    var cols     = 3;
+
+    window.addEventListener('message', function(e) {
+      var d = e.data;
+      if (!d) return;
+      if (d.action === 'open')  open(d.title, d.items);
+      if (d.action === 'close') close();
+      if (d.action === 'move')  move(d.dir);
+      if (d.action === 'select') confirmSelect();
+    });
+
+    function open(title, newItems) {
+      items    = newItems || [];
+      selected = 0;
+      document.getElementById('menu-title').textContent = title || 'Menu';
+      render();
+      document.getElementById('menu').classList.add('visible');
+    }
+
+    function close() {
+      document.getElementById('menu').classList.remove('visible');
+    }
+
+    function move(dir) {
+      var total = items.length;
+      if (total === 0) return;
+      if (dir === 'up')    selected = (selected - cols + total) % total;
+      if (dir === 'down')  selected = (selected + cols) % total;
+      if (dir === 'left')  selected = (selected - 1 + total) % total;
+      if (dir === 'right') selected = (selected + 1) % total;
+      render();
+    }
+
+    function confirmSelect() {
+      if (items[selected]) {
+        window.invokeNative('dui_menu_select', JSON.stringify({ index: selected, label: items[selected].label }));
+      }
+    }
+
+    function render() {
+      var grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var el   = document.createElement('div');
+        el.className = 'item' + (i === selected ? ' selected' : '');
+        el.innerHTML = '<div class="icon">' + (item.icon || '&#9632;') + '</div><div class="label">' + item.label + '</div>';
+        grid.appendChild(el);
+      }
+    }
+  </script>
+</body>
+</html>
