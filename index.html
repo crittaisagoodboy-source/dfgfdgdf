@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lean Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;background:transparent;overflow:hidden;user-select:none;}
+
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:flex-start;justify-content:flex-start;padding:30px 0 0 20px;opacity:0;pointer-events:none;transition:opacity 0.22s ease;}
+#overlay.visible{opacity:1;pointer-events:all;}
+
+#panel{width:420px;background:rgba(6,9,6,0.96);border-radius:5px;overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 70px);transform:translateX(-18px);transition:transform 0.25s cubic-bezier(.22,.68,0,1.15);border:1px solid rgba(30,140,60,0.35);box-shadow:0 8px 48px rgba(0,0,0,0.85);}
+#overlay.visible #panel{transform:translateX(0);}
+
+#header{background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;max-height:110px;}
+#header img{width:100%;height:auto;display:block;object-fit:cover;}
+
+#breadcrumb{background:#080e08;color:#e0e0e0;font-size:11.5px;padding:7px 14px;border-bottom:1px solid rgba(30,140,60,0.25);flex-shrink:0;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;text-align:center;font-family:'Poppins',Arial,sans-serif;}
+
+.toggle-switch{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:#2a2a2a;border:1.5px solid #3a3a3a;border-radius:10px;cursor:pointer;transition:background 0.18s ease,border-color 0.18s ease;}
+.toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#555;transition:transform 0.18s cubic-bezier(.22,.68,0,1.2),background 0.18s ease;}
+input:checked + .toggle-track{background:#22cc55;border-color:#22cc55;}
+input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;}
+
+.tabs-bar{display:flex;background:rgba(0,0,0,0.4);border-bottom:1px solid rgba(30,140,60,0.3);margin-bottom:4px;flex-shrink:0;}
+.tab{flex:1;text-align:center;padding:8px 0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#888;cursor:pointer;transition:all 0.15s ease;font-family:'Poppins',Arial,sans-serif;}
+.tab:hover{color:#ccc;background:rgba(30,140,60,0.1);}
+.tab.active{color:#22cc55;border-bottom:2px solid #22cc55;background:rgba(34,204,85,0.08);}
+
+#items-wrap{overflow-y:scroll;overflow-x:hidden;flex:1;padding:4px 6px;scroll-behavior:smooth;}
+#items-wrap::-webkit-scrollbar{width:4px;}
+#items-wrap::-webkit-scrollbar-track{background:rgba(255,255,255,0.03);border-radius:2px;}
+#items-wrap::-webkit-scrollbar-thumb{background:rgba(30,160,65,0.55);border-radius:2px;}
+#items-wrap::-webkit-scrollbar-thumb:hover{background:rgba(30,160,65,0.85);}
+
+.menu-item{display:flex;align-items:center;padding:0 12px;height:38px;font-size:13px;color:#cccccc;cursor:pointer;position:relative;flex-shrink:0;border-radius:4px;transition:background 0.13s ease,color 0.13s ease;gap:11px;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
+.menu-item.selected{background:rgba(25,140,55,0.7);color:#ffffff;}
+.mi-icon{font-size:16px;opacity:0.6;flex-shrink:0;width:20px;text-align:center;color:#aaa;display:flex;align-items:center;justify-content:center;}
+.menu-item.selected .mi-icon{opacity:1;color:#fff;}
+.item-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;font-weight:500;}
+.menu-item.selected .item-label{font-weight:600;}
+.item-arrow{font-size:12px;opacity:0.45;flex-shrink:0;color:#aaa;font-weight:400;}
+.menu-item.selected .item-arrow{opacity:0.9;color:#fff;}
+
+.item-dot{width:9px;height:9px;border-radius:50%;background:#252525;border:1.5px solid #3a3a3a;margin-left:6px;flex-shrink:0;transition:background 0.15s,border-color 0.15s;}
+.item-dot.on{background:#22cc55;border-color:#22cc55;}
+.menu-item.selected .item-dot{background:rgba(0,0,0,0.35);border-color:rgba(0,0,0,0.5);}
+.menu-item.selected .item-dot.on{background:#22cc55;border-color:#22cc55;}
+
+.menu-separator{display:flex;align-items:center;padding:7px 6px 4px;gap:7px;flex-shrink:0;}
+.sep-line{flex:1;height:1px;background:rgba(30,140,60,0.2);}
+.sep-label{font-size:9px;color:#3a6a3a;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
+
+.slider-row{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
+.slider-label{white-space:nowrap;font-size:12.5px;flex-shrink:0;font-weight:500;}
+.slider-track{flex:1;height:3px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;}
+.slider-fill{height:100%;background:#22cc55;border-radius:3px;transition:width 0.1s ease;}
+.menu-item.selected .slider-track{background:rgba(0,0,0,0.2);}
+
+#footer{background:rgba(4,7,4,0.98);color:#666;font-size:11px;padding:7px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(30,140,60,0.2);flex-shrink:0;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
+
+#notifs{position:fixed;top:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;width:295px;}
+.notif{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:6px;font-size:12px;line-height:1.5;animation:slideIn 0.3s cubic-bezier(.22,.68,0,1.2) forwards;pointer-events:all;border:1px solid;font-family:'Poppins',Arial,sans-serif;font-weight:400;}
+.notif.info{background:rgba(18,75,195,0.92);border-color:rgba(60,130,255,0.45);color:#cce0ff;}
+.notif.success{background:rgba(8,95,35,0.92);border-color:rgba(40,200,80,0.45);color:#b0ffca;}
+.notif-icon{font-size:14px;flex-shrink:0;margin-top:1px;opacity:0.9;}
+.notif-text{flex:1;}
+.notif-close{font-size:13px;opacity:0.4;cursor:pointer;flex-shrink:0;padding:0 2px;}
+.notif-close:hover{opacity:1;}
+.notif.hiding{animation:slideOut 0.25s ease forwards;}
+@keyframes slideIn{from{opacity:0;transform:translateX(32px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(32px);}}
+
+/* ── FREECAM OVERLAY ── */
+#freecam-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  display:none;z-index:8000;pointer-events:none;
+}
+#freecam-overlay.visible{display:block;pointer-events:all;}
+
+/* crosshair */
+#freecam-crosshair{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:16px;height:16px;pointer-events:none;
+}
+#freecam-crosshair::before,#freecam-crosshair::after{
+  content:'';position:absolute;background:rgba(255,255,255,0.9);border-radius:1px;
+}
+#freecam-crosshair::before{width:2px;height:100%;left:50%;transform:translateX(-50%);}
+#freecam-crosshair::after{width:100%;height:2px;top:50%;transform:translateY(-50%);}
+
+/* main options list — right side, vertically centred, matching reference */
+#freecam-panel{
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  background:rgba(8,10,8,0.93);
+  min-width:200px;overflow:hidden;
+  pointer-events:all;
+}
+
+.fc-option{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;height:26px;
+  font-size:13px;font-weight:400;color:#cccccc;
+  font-family:'Poppins',Arial,sans-serif;
+  cursor:pointer;
+}
+.fc-option.fc-hovered{
+  color:#22cc55;font-weight:600;
+}
+.fc-option-label{flex:1;}
+.fc-option-sub{
+  font-size:11px;color:#555;font-weight:400;
+  margin-left:10px;white-space:nowrap;
+}
+.fc-option.fc-hovered .fc-option-sub{color:#22cc55;opacity:0.7;}
+
+/* weapon sub-panel — appears left of main panel when weapon option hovered */
+#freecam-sub-panel{
+  position:absolute;right:200px;top:50%;transform:translateY(-50%);
+  background:rgba(8,10,8,0.93);
+  min-width:180px;overflow:hidden;
+  pointer-events:none;display:none;
+}
+#freecam-sub-panel.visible{display:block;}
+.fc-sub-item{
+  display:flex;align-items:center;
+  padding:0 18px;height:26px;
+  font-size:13px;font-weight:400;color:#cccccc;
+  font-family:'Poppins',Arial,sans-serif;
+}
+.fc-sub-item.fc-sub-active{color:#22cc55;font-weight:600;}
+
+/* tiny hint bar at bottom */
+#freecam-hints{
+  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  display:flex;gap:16px;pointer-events:none;
+}
+.fc-hint{
+  display:flex;align-items:center;gap:5px;
+  font-family:'Poppins',Arial,sans-serif;font-size:10px;
+  color:rgba(150,150,150,0.6);font-weight:400;
+}
+.fc-key{
+  background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);
+  border-radius:3px;padding:1px 5px;font-size:9px;font-weight:600;
+  color:#aaa;font-family:'Poppins',Arial,sans-serif;white-space:nowrap;
+}
+</style>
+</head>
+<body>
+
+<div id="notifs"></div>
+
+<!-- MAIN MENU -->
+<div id="overlay">
+  <div id="panel">
+    <div id="header">
+      <img src="https://media.discordapp.net/attachments/1439058929735958568/1502696913328410665/image.png?ex=6a00a70e&is=69ff558e&hm=eefd67d658891324112f7132c9efb2da20f083835142d495af4c2cdf7036753a&=&format=webp&quality=lossless"
+           onerror="this.style.display='none';" />
+    </div>
+    <div id="breadcrumb">HOME</div>
+    <div id="items-wrap"></div>
+    <div id="footer">
+      <span id="footer-left">Version: Beta | 24hrs ago (pls report bugs)</span>
+      <span id="footer-count">1/9</span>
+    </div>
+  </div>
+</div>
+
+<!-- FREECAM OVERLAY -->
+<div id="freecam-overlay">
+  <div id="freecam-crosshair"></div>
+
+  <!-- Main options list (right side, vertically centred) -->
+  <div id="freecam-panel">
+    <div id="freecam-options"></div>
+  </div>
+
+  <!-- Sub list (weapons or vehicles, appears left of main panel) -->
+  <div id="freecam-sub-panel">
+    <div id="freecam-sub-list"></div>
+  </div>
+
+  <!-- Hint bar bottom centre -->
+  <div id="freecam-hints">
+    <div class="fc-hint"><span class="fc-key">SCROLL</span> Navigate</div>
+    <div class="fc-hint"><span class="fc-key">LMB</span> Activate</div>
+    <div class="fc-hint"><span class="fc-key">← →</span> Cycle sub-item</div>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  self:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
+  network:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+  weapons:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7 7m0 0l4-4 7 7-4 4M10 10l-4 8 4-4 4 4 8-4"/></svg>`,
+  esp:         `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="10" ry="5"/><circle cx="12" cy="12" r="2"/></svg>`,
+  vehicle:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="8" rx="2"/><path d="M5 10V7a2 2 0 012-2h10a2 2 0 012 2v3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
+  misc:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>`,
+  destructive: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 7 5 10 5 14a7 7 0 0014 0c0-4-3-7-7-12z"/></svg>`,
+  triggers:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  settings:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>`,
+};
+
+const MENUS = {
+  main:{ title:"main", items:[] }
+};
+
+MENUS.main.items = [
+  { type:"submenu", label:"Self",        iconKey:"self",        target:"self" },
+  { type:"submenu", label:"Network",     iconKey:"network",     target:"network" },
+  { type:"submenu", label:"Weapons",     iconKey:"weapons",     target:"weapons" },
+  { type:"submenu", label:"ESP",         iconKey:"esp",         target:"esp" },
+  { type:"submenu", label:"Vehicle",     iconKey:"vehicle",     target:"vehicle" },
+  { type:"submenu", label:"Misc",        iconKey:"misc",        target:"misc" },
+  { type:"submenu", label:"Destructive", iconKey:"destructive", target:"destructive" },
+  { type:"submenu", label:"Triggers",    iconKey:"triggers",    target:"triggers" },
+  { type:"submenu", label:"Settings",    iconKey:"settings",    target:"settings" },
+];
+
+MENUS.self = { title:"self", items:[
+  { type:"toggle", label:"God Mode",      key:"godmode" },
+  { type:"toggle", label:"No Clip",       key:"noclip" },
+  { type:"toggle", label:"Infinite Ammo", key:"infammo" },
+  { type:"slider", label:"Health",        key:"health", min:0, max:100, val:100 },
+]};
+
+
+MENUS.weapons = { title:"weapons", items:[
+  { type:"toggle", label:"Aimbot",     key:"aimbot" },
+  { type:"toggle", label:"No Recoil", key:"norecoil" },
+]};
+
+/* ── FREECAM STATE ── */
+const FreecamWeaponList  = ["WEAPON_APPISTOL","WEAPON_PISTOL","WEAPON_SMG","WEAPON_ASSAULTRIFLE","WEAPON_RPG","WEAPON_PERMKILL","WEAPON_AIRSTRIKE_ROCKET"];
+const FreecamVehicleList = ["tractor","towtruck2","towtruck","mower","freight","limo2","vigilante","shamal","cargoplane","jet","Kosatka","pbus2","wastelander","pbus","rcbandito","bus","police3","policeold1","policeold2","baletrailer"];
+
+/* Options: label + optional subList key */
+const FreecamOptions = [
+  { label: "Default" },
+  { label: "Teleport" },
+  { label: "Shoot Weapon",     sub: "weapon" },
+  { label: "Shoot Vehicle",    sub: "vehicle" },
+  { label: "Copy Appearance" },
+  { label: "Kick from Vehicle" },
+  { label: "Hijack Vehicle" },
+  { label: "Delete Vehicle" },
+  { label: "Detach Wheels" },
+];
+
+let freecamVisible    = false;
+let freecamHoveredIdx = 0;
+let freecamWeaponIdx  = 0;
+let freecamVehicleIdx = 0;
+
+const fcOverlay  = document.getElementById("freecam-overlay");
+const fcOptList  = document.getElementById("freecam-options");
+const fcSubPanel = document.getElementById("freecam-sub-panel");
+const fcSubList  = document.getElementById("freecam-sub-list");
+
+function getSubList() {
+  const opt = FreecamOptions[freecamHoveredIdx];
+  if (!opt || !opt.sub) return null;
+  return opt.sub === "weapon" ? FreecamWeaponList : FreecamVehicleList;
+}
+
+function getSubIdx() {
+  const opt = FreecamOptions[freecamHoveredIdx];
+  if (!opt || !opt.sub) return 0;
+  return opt.sub === "weapon" ? freecamWeaponIdx : freecamVehicleIdx;
+}
+
+function setSubIdx(i) {
+  const opt = FreecamOptions[freecamHoveredIdx];
+  if (!opt || !opt.sub) return;
+  if (opt.sub === "weapon") freecamWeaponIdx = i;
+  else freecamVehicleIdx = i;
+}
+
+function renderFreecam() {
+  const subList = getSubList();
+  const subIdx  = getSubIdx();
+
+  /* options */
+  fcOptList.innerHTML = FreecamOptions.map((opt, i) => {
+    const hov = i === freecamHoveredIdx;
+    let subLabel = "";
+    if (opt.sub) {
+      const list = opt.sub === "weapon" ? FreecamWeaponList : FreecamVehicleList;
+      const idx  = opt.sub === "weapon" ? freecamWeaponIdx : freecamVehicleIdx;
+      const name = (list[idx] || "").replace("WEAPON_", "");
+      subLabel = `<span class="fc-option-sub">← ${name} →</span>`;
+    }
+    return `<div class="fc-option${hov ? " fc-hovered" : ""}" data-fc-idx="${i}">
+      <span class="fc-option-label">${opt.label}</span>${subLabel}
+    </div>`;
+  }).join("");
+
+  /* sub panel */
+  if (subList) {
+    fcSubList.innerHTML = subList.map((item, i) => {
+      const name = item.replace("WEAPON_", "");
+      return `<div class="fc-sub-item${i === subIdx ? " fc-sub-active" : ""}">${name}</div>`;
+    }).join("");
+    fcSubPanel.classList.add("visible");
+    /* position sub panel to the left of main panel */
+    const mainW = document.getElementById("freecam-panel").offsetWidth;
+    fcSubPanel.style.right = mainW + "px";
+  } else {
+    fcSubPanel.classList.remove("visible");
+    fcSubList.innerHTML = "";
+  }
+}
+
+function showFreecam(weaponIndex, vehicleIndex) {
+  freecamVisible    = true;
+  freecamWeaponIdx  = Math.max(0, (weaponIndex  || 1) - 1);
+  freecamVehicleIdx = Math.max(0, (vehicleIndex || 1) - 1);
+  freecamHoveredIdx = 0;
+  fcOverlay.classList.add("visible");
+  renderFreecam();
+}
+
+function hideFreecam() {
+  freecamVisible = false;
+  fcOverlay.classList.remove("visible");
+}
+
+/* scroll wheel — cycle options */
+fcOverlay.addEventListener("wheel", e => {
+  if (!freecamVisible) return;
+  e.preventDefault();
+  freecamHoveredIdx = (freecamHoveredIdx + (e.deltaY > 0 ? 1 : -1) + FreecamOptions.length) % FreecamOptions.length;
+  renderFreecam();
+  sendGame({ action: "freecamOptionChange", index: freecamHoveredIdx + 1 });
+}, { passive: false });
+
+/* LMB — activate hovered option */
+fcOverlay.addEventListener("click", e => {
+  if (!freecamVisible) return;
+  const opt = FreecamOptions[freecamHoveredIdx];
+  sendGame({ action: "freecamActivate", index: freecamHoveredIdx + 1, option: opt ? opt.label : "" });
+});
+
+/* click directly on an option row to jump to it */
+fcOptList.addEventListener("click", e => {
+  const row = e.target.closest(".fc-option");
+  if (!row) return;
+  const idx = parseInt(row.dataset.fcIdx);
+  if (!isNaN(idx)) { freecamHoveredIdx = idx; renderFreecam(); sendGame({ action: "freecamOptionChange", index: idx + 1 }); }
+  e.stopPropagation();
+});
+
+/* ── MENU STATE ── */
+let menuOpen=false,stack=["main"],cursorIdx=0,prevCursorIdx=0;
+const toggles={},sliders={};
+Object.values(MENUS).forEach(m=>m.items.forEach(item=>{
+  if(item.type==="toggle")toggles[item.key]=item.defaultOn||false;
+  if(item.type==="slider")sliders[item.key]=item.val??0;
+}));
+
+const overlay    = document.getElementById("overlay");
+const breadcrumb = document.getElementById("breadcrumb");
+const itemsWrap  = document.getElementById("items-wrap");
+const footerCnt  = document.getElementById("footer-count");
+
+function currentMenu(){return MENUS[stack[stack.length-1]];}
+function getActiveTabName(){
+  const menu=currentMenu();
+  const tabsItem=menu.items.find(i=>i.type==="tabs");
+  if(!tabsItem)return null;
+  return tabsItem.tabs[tabsItem.activeTab||0];
+}
+
+function navItems(){
+  const menu=currentMenu();
+  const activeTab=getActiveTabName();
+  return menu.items.filter(item=>{
+    if(item.type==="sep"||item.type==="tabs")return false;
+    if(activeTab!==null&&item.tab&&item.tab!==activeTab)return false;
+    return true;
+  });
+}
+
+function render(){
+  const menu=currentMenu();
+  const nav=navItems();
+  cursorIdx=Math.max(0,Math.min(cursorIdx,nav.length-1));
+  breadcrumb.textContent=stack[stack.length-1].toUpperCase();
+  buildItems(menu,nav);
+  prevCursorIdx=cursorIdx;
+  footerCnt.textContent=`${cursorIdx+1}/${nav.length}`;
+  const sel=itemsWrap.querySelector(".selected");
+  if(sel)sel.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+
+let currentTab=0;
+
+function buildItems(menu,nav){
+  itemsWrap.innerHTML="";
+  const hasTabs=menu.items.some(i=>i.type==="tabs");
+  let activeTab=null;
+
+  if(hasTabs){
+    const tabsItem=menu.items.find(i=>i.type==="tabs");
+    if(tabsItem){
+      activeTab=tabsItem.tabs[tabsItem.activeTab||0];
+      currentTab=tabsItem.activeTab||0;
+      const tabsBar=document.createElement("div");
+      tabsBar.className="tabs-bar";
+      tabsBar.innerHTML=tabsItem.tabs.map((tab,idx)=>
+        `<div class="tab${idx===currentTab?" active":""}" data-tab-idx="${idx}">${tab}</div>`
+      ).join("");
+      itemsWrap.appendChild(tabsBar);
+      tabsBar.querySelectorAll(".tab").forEach(tab=>{
+        tab.addEventListener("click",()=>{
+          const idx=parseInt(tab.dataset.tabIdx);
+          if(!isNaN(idx))switchTab(idx);
+        });
+      });
+    }
+  }
+
+  let ni=0;
+  menu.items.forEach(item=>{
+    if(item.type==="tabs")return;
+    if(hasTabs&&item.tab&&item.tab!==activeTab)return;
+    if(item.type==="sep"){
+      const sep=document.createElement("div");
+      sep.className="menu-separator";
+      sep.innerHTML=`<div class="sep-line"></div><span class="sep-label">${item.label}</span><div class="sep-line"></div>`;
+      itemsWrap.appendChild(sep);
+      return;
+    }
+    const sel=ni===cursorIdx;
+    const myNi=ni++;
+    const row=document.createElement("div");
+    row.className="menu-item"+(sel?" selected":"");
+    row.dataset.ni=myNi;
+    if(sel){
+      row.style.cssText="transform:translateY(8px);opacity:0.4;transition:none;";
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        row.style.transition="transform 0.2s cubic-bezier(.22,.68,0,1.2),opacity 0.15s ease";
+        row.style.transform="translateY(0)";row.style.opacity="1";
+      }));
+    }
+    if(item.type==="submenu"){
+      const svgIcon=ICONS[item.iconKey]||"";
+      row.innerHTML=`<span class="mi-icon">${svgIcon}</span><span class="item-label">${item.label}</span><span class="item-arrow">>></span>`;
+} else if(item.type==="toggle"){
+  const on=toggles[item.key];
+  row.innerHTML=`<span class="item-label">${item.label}</span>
+    <label class="toggle-switch" onclick="event.stopPropagation()">
+      <input type="checkbox"${on?" checked":""} onchange="toggles['${item.key}']=this.checked;sendGame({action:'togglePress',key:'${item.key}',value:this.checked})">
+      <span class="toggle-track"></span>
+    </label>`;
+} else if(item.type==="slider"){
+      const v=sliders[item.key]??0;
+      const pct=((v-item.min)/(item.max-item.min)*100).toFixed(1);
+      row.innerHTML=`<div class="slider-row"><span class="slider-label">${item.label}: ${v}</span><div class="slider-track"><div class="slider-fill" style="width:${pct}%"></div></div></div><span class="item-dot on"></span>`;
+    }else{
+      row.innerHTML=`<span class="item-label">${item.label}</span>`;
+    }
+    itemsWrap.appendChild(row);
+  });
+}
+
+function switchTab(newTabIdx){
+  const menu=currentMenu();
+  const tabsItem=menu.items.find(i=>i.type==="tabs");
+  if(tabsItem){tabsItem.activeTab=newTabIdx;currentTab=newTabIdx;cursorIdx=0;prevCursorIdx=0;render();}
+}
+
+function activate(){
+  const item=navItems()[cursorIdx];
+  if(!item)return;
+  if(item.type==="submenu"){
+    itemsWrap.style.cssText="transition:opacity 0.1s ease,transform 0.12s ease;opacity:0;transform:translateX(-10px);";
+    setTimeout(()=>{
+      stack.push(item.target);cursorIdx=0;prevCursorIdx=0;render();
+      itemsWrap.style.cssText="transform:translateX(10px);opacity:0;";
+      requestAnimationFrame(()=>{
+        itemsWrap.style.cssText="transition:opacity 0.15s ease,transform 0.18s cubic-bezier(.22,.68,0,1.2);transform:translateX(0);opacity:1;";
+      });
+    },100);
+}else if(item.type==="toggle"){
+  toggles[item.key]=!toggles[item.key];
+  sendGame({action:"togglePress",key:item.key,value:toggles[item.key]});
+  render();
+}else if(item.type==="action"){
+    sendGame({action:"run",label:item.label,id:item.id});
+  }
+}
+
+function goBack(){
+  if(stack.length>1){
+    itemsWrap.style.cssText="opacity:0;transform:translateX(10px);";
+    setTimeout(()=>{
+      stack.pop();cursorIdx=0;prevCursorIdx=0;render();
+      itemsWrap.style.cssText="transform:translateX(-10px);opacity:0;";
+      requestAnimationFrame(()=>{
+        itemsWrap.style.cssText="transition:opacity 0.15s ease,transform 0.18s cubic-bezier(.22,.68,0,1.2);transform:translateX(0);opacity:1;";
+      });
+    },100);
+  }else hideMenu();
+}
+
+function nudgeSlider(dir){
+  const item=navItems()[cursorIdx];
+  if(!item||item.type!=="slider")return;
+  const step=Math.max(1,Math.round((item.max-item.min)/50));
+  sliders[item.key]=Math.max(item.min,Math.min(item.max,sliders[item.key]+dir*step));
+  sendGame({action:"slider",key:item.key,value:sliders[item.key]});
+  render();
+}
+
+document.addEventListener("keydown",e=>{
+  /* freecam key handling (only when freecam visible) */
+  if(freecamVisible){
+    if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
+      e.preventDefault();
+      const subList = getSubList();
+      if(subList){
+        const dir = e.key==="ArrowRight" ? 1 : -1;
+        setSubIdx((getSubIdx() + dir + subList.length) % subList.length);
+        renderFreecam();
+        sendGame({ action: "freecamSubChange", index: getSubIdx()+1 });
+      }
+    }
+    return; /* swallow all other keys while freecam active */
+  }
+
+  const key=e.key;
+  if(key==="Insert"||e.keyCode===45){menuOpen?hideMenu():showMenu();return;}
+  if(!menuOpen)return;
+
+  if(key==="e"||key==="E"||key==="q"||key==="Q"){
+    e.preventDefault();
+    const menu=currentMenu();
+    if(menu.items.some(i=>i.type==="tabs"))handleKey(key);
+    return;
+  }
+
+  const nav=navItems();
+  const item=nav[cursorIdx];
+  switch(key){
+    case"ArrowUp":e.preventDefault();prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx-1+nav.length)%nav.length;render();break;
+    case"ArrowDown":e.preventDefault();prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx+1)%nav.length;render();break;
+    case"ArrowRight":e.preventDefault();if(item&&item.type==="slider")nudgeSlider(1);break;
+    case"ArrowLeft":e.preventDefault();if(item&&item.type==="slider")nudgeSlider(-1);else goBack();break;
+    case"Enter":e.preventDefault();activate();break;
+    case"Backspace":case"Escape":e.preventDefault();goBack();break;
+  }
+},true);
+
+itemsWrap.addEventListener("click",e=>{
+  const row=e.target.closest(".menu-item");
+  if(!row)return;
+  const idx=parseInt(row.dataset.ni);
+  if(!isNaN(idx)){prevCursorIdx=cursorIdx;cursorIdx=idx;render();activate();}
+});
+
+function showMenu(){menuOpen=true;overlay.classList.add("visible");render();}
+function hideMenu(){menuOpen=false;overlay.classList.remove("visible");}
+
+function sendGame(data){
+  try{window.parent.postMessage(JSON.stringify({_crown:true,...data}),"*");}catch(e){}
+}
+
+/* ── INCOMING MESSAGES ── */
+window.addEventListener("message",ev=>{
+  let msg;
+  try{msg=typeof ev.data==="string"?JSON.parse(ev.data):ev.data;}catch{return;}
+  if(!msg||msg._crown)return;
+
+  switch(msg.action){
+    case"show":showMenu();break;
+    case"hide":hideMenu();break;
+    case"toggle":menuOpen?hideMenu():showMenu();break;
+
+    /* ── FREECAM ── */
+    case"displayFreecam":
+      if(msg.visible){
+        showFreecam(msg.weaponIndex,msg.vehicleIndex);
+      }else{
+        hideFreecam();
+      }
+      break;
+
+    case"freecamSetHovered":
+      if(msg.index!=null){
+        freecamHoveredIdx=Math.max(0,Math.min(FreecamOptions.length-1,(msg.index||1)-1));
+        if(freecamVisible)renderFreecam();
+      }
+      break;
+
+    case"freecamSetWeapon":
+      if(msg.index!=null){freecamWeaponIdx=(msg.index||1)-1;if(freecamVisible)renderFreecam();}
+      break;
+    case"freecamSetVehicle":
+      if(msg.index!=null){freecamVehicleIdx=(msg.index||1)-1;if(freecamVisible)renderFreecam();}
+      break;
+
+    /* existing toggle/slider/navigate etc. */
+    case"updateToggle":
+    case"setToggle":
+      if(msg.key!=null){toggles[msg.key]=msg.value;if(menuOpen)render();}break;
+    case"navigate":
+      if(msg.menu&&MENUS[msg.menu]){stack=[msg.menu];cursorIdx=0;if(menuOpen)render();}break;
+    case"key":
+      if(msg.key)handleKey(msg.key);break;
+    case"loadMenus":
+      if(msg.menus&&typeof msg.menus==="object"){Object.assign(MENUS,msg.menus);stack=["main"];cursorIdx=0;if(menuOpen)render();}break;
+  }
+});
+
+function handleKey(key){
+  if(!menuOpen)return;
+  const menu=currentMenu();
+  if(menu.items.some(i=>i.type==="tabs")&&(key==="E"||key==="Q"||key==="e"||key==="q")){
+    const tabsItem=menu.items.find(i=>i.type==="tabs");
+    if(tabsItem){
+      let newIdx=tabsItem.activeTab||0;
+      newIdx=(key==="E"||key==="e")?(newIdx+1)%tabsItem.tabs.length:(newIdx-1+tabsItem.tabs.length)%tabsItem.tabs.length;
+      switchTab(newIdx);
+      sendGame({action:"tabSwitch",tab:tabsItem.tabs[newIdx],tabIndex:newIdx});
+    }
+    return;
+  }
+  const nav=navItems();
+  const item=nav[cursorIdx];
+  switch(key){
+    case"ArrowUp":prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx-1+nav.length)%nav.length;render();break;
+    case"ArrowDown":prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx+1)%nav.length;render();break;
+    case"ArrowRight":if(item&&item.type==="slider")nudgeSlider(1);break;
+    case"ArrowLeft":if(item&&item.type==="slider")nudgeSlider(-1);else goBack();break;
+    case"Enter":activate();break;
+    case"Backspace":case"Escape":goBack();break;
+    case"Insert":menuOpen?hideMenu():showMenu();break;
+  }
+}
+
+/* ── NOTIFICATIONS ── */
+function showNotif(text,type){
+  type=type||"info";
+  const wrap=document.getElementById("notifs");
+  const el=document.createElement("div");
+  el.className="notif "+type;
+  const icon=type==="success"?"✓":"ℹ";
+  el.innerHTML=`<span class="notif-icon">${icon}</span><span class="notif-text">${text}</span><span class="notif-close" onclick="dismissNotif(this)">✕</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{const c=el.querySelector(".notif-close");if(c)dismissNotif(c);},5000);
+}
+function dismissNotif(closeBtn){
+  const el=closeBtn.closest(".notif");
+  if(!el)return;
+  el.classList.add("hiding");
+  setTimeout(()=>el.remove(),250);
+}
+
+showMenu();
+setTimeout(()=>showNotif("Initializing Menu, Bypasses & Account Data...","info"),400);
+setTimeout(()=>showNotif("In Game Bypasses loaded successfully!","success"),1400);
+setTimeout(()=>showNotif("Lean Menu successfully loaded!","info"),2400);
+</script>
+</body>
+</html>
