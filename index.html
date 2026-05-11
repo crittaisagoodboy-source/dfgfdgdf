@@ -708,6 +708,24 @@ window.addEventListener("message",ev=>{
       }
       break;
 
+
+
+
+case "showKeybindSelector":
+  // already visible by default, nothing to do
+  break;
+
+case "keybindConfirmed":
+  document.getElementById("kb-label").textContent = "Open key set to: " + (msg.key || "");
+  document.getElementById("kb-cursor").style.animation = "none";
+  document.getElementById("kb-cursor").style.opacity = "0";
+  setTimeout(() => {
+    document.getElementById("kb-overlay").classList.add("hidden");
+  }, 900);
+  break;
+
+      
+
     case"freecamSetWeapon":
       if(msg.index!=null){freecamWeaponIdx=(msg.index||1)-1;if(freecamVisible)renderFreecam();}
       break;
