@@ -17,6 +17,29 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
 #header{background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;max-height:110px;}
 #header img{width:100%;height:auto;display:block;object-fit:cover;}
 
+
+/* ── KEYBIND SELECTOR ── */
+#kb-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  display:flex;align-items:flex-start;justify-content:flex-start;
+  padding:8px 0 0 8px;z-index:99999;pointer-events:all;
+}
+#kb-overlay.hidden{display:none;}
+#kb-bar{
+  background:rgba(8,8,14,0.97);
+  border:1px solid rgba(80,120,255,0.3);
+  border-radius:2px;padding:5px 12px 5px 9px;
+  display:flex;align-items:center;gap:8px;
+  min-width:260px;
+  box-shadow:0 2px 18px rgba(0,0,0,0.7);
+  animation:kbSlide 0.18s ease forwards;
+}
+@keyframes kbSlide{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.kb-icon{color:rgba(100,150,255,0.85);font-size:13px;flex-shrink:0;display:flex;align-items:center;}
+.kb-text{color:rgba(200,210,230,0.9);font-size:12px;letter-spacing:0.3px;font-family:'Consolas','Courier New',monospace;font-weight:400;}
+#kb-cursor{color:rgba(100,180,255,0.8);font-size:11px;margin-left:6px;animation:kbBlink 1s step-end infinite;}
+@keyframes kbBlink{0%,100%{opacity:1;}50%{opacity:0;}}
+  
 #breadcrumb{background:#080e08;color:#e0e0e0;font-size:11.5px;padding:7px 14px;border-bottom:1px solid rgba(30,140,60,0.25);flex-shrink:0;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;text-align:center;font-family:'Poppins',Arial,sans-serif;}
 
 .notif.error{background:rgba(160,20,20,0.92);border-color:rgba(255,80,80,0.45);color:#ffd0d0;}
@@ -171,6 +194,20 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 
 <div id="notifs"></div>
 
+
+
+<!-- KEYBIND SELECTOR -->
+<div id="kb-overlay">
+  <div id="kb-bar">
+    <span class="kb-icon">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </span>
+    <span class="kb-text" id="kb-label">Select a keybind (Open key)</span>
+    <span id="kb-cursor">|</span>
+  </div>
+</div>
+
+  
 <!-- MAIN MENU -->
 <div id="overlay">
   <div id="panel">
@@ -741,6 +778,59 @@ function dismissNotif(closeBtn){
   el.classList.add("hiding");
   setTimeout(()=>el.remove(),250);
 }
+
+
+
+
+/* ── KEYBIND SELECTOR ── */
+(function(){
+  const kbOverlay = document.getElementById("kb-overlay");
+  const kbLabel   = document.getElementById("kb-label");
+
+  // All human-readable key names
+  const IGNORED = new Set(["Shift","Control","Alt","Meta","OS","CapsLock"]);
+  // We DO allow CapsLock as a bind key but not modifiers
+
+  const MOUSE_NAMES = ["Left Click","Middle Click","Right Click","Mouse 4","Mouse 5","Mouse 6","Mouse 7","Mouse 8"];
+
+  function prettyKey(e){
+    if(e.key === "CapsLock") return "CapsLock";
+    if(IGNORED.has(e.key)) return null;
+    if(e.key === " ") return "Space";
+    if(e.key === "ArrowUp") return "Arrow Up";
+    if(e.key === "ArrowDown") return "Arrow Down";
+    if(e.key === "ArrowLeft") return "Arrow Left";
+    if(e.key === "ArrowRight") return "Arrow Right";
+    return e.key.length === 1 ? e.key.toUpperCase() : e.key;
+  }
+
+  function bindSelected(name){
+    kbLabel.textContent = "Open key set to: " + name;
+    document.getElementById("kb-cursor").style.display = "none";
+    sendGame({ action: "keybindSelected", key: name });
+    setTimeout(()=>{ kbOverlay.classList.add("hidden"); }, 900);
+  }
+
+  // Keyboard
+  window.addEventListener("keydown", function onKbPick(e){
+    const name = prettyKey(e);
+    if(!name) return;
+    e.preventDefault();
+    window.removeEventListener("keydown", onKbPick, true);
+    kbOverlay.removeEventListener("mousedown", onMousePick);
+    bindSelected(name);
+  }, true);
+
+  // Mouse
+  function onMousePick(e){
+    e.preventDefault();
+    kbOverlay.removeEventListener("mousedown", onMousePick);
+    const name = MOUSE_NAMES[e.button] || ("Mouse " + e.button);
+    bindSelected(name);
+  }
+  kbOverlay.addEventListener("mousedown", onMousePick);
+})();
+  
 
 showMenu();
 setTimeout(()=>showNotif("Haze Menu","Initializing bypasses & account data...","info"),400);
