@@ -19,6 +19,10 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
 
 #breadcrumb{background:#080e08;color:#e0e0e0;font-size:11.5px;padding:7px 14px;border-bottom:1px solid rgba(30,140,60,0.25);flex-shrink:0;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;text-align:center;font-family:'Poppins',Arial,sans-serif;}
 
+.notif.error{background:rgba(160,20,20,0.92);border-color:rgba(255,80,80,0.45);color:#ffd0d0;}
+.notif-title{display:block;font-weight:600;font-size:12px;line-height:1.4;}
+.notif-desc{display:block;font-size:11px;opacity:0.8;line-height:1.4;margin-top:1px;}
+  
 .scrollable-display{
   display:flex;align-items:center;gap:6px;flex-shrink:0;
   font-size:12px;color:#aaa;font-family:'Poppins',Arial,sans-serif;
@@ -649,6 +653,10 @@ window.addEventListener("message",ev=>{
       if(msg.index!=null){freecamVehicleIdx=(msg.index||1)-1;if(freecamVisible)renderFreecam();}
       break;
 
+      case "notify":
+  showNotif(msg.title || "", msg.description || "", msg.notifType || "info");
+  break;
+
     /* existing toggle/slider/navigate etc. */
     case"updateToggle":
     case"setToggle":
@@ -708,17 +716,25 @@ case "ArrowLeft":
   }
 }
 
-/* ── NOTIFICATIONS ── */
-function showNotif(text,type){
-  type=type||"info";
-  const wrap=document.getElementById("notifs");
-  const el=document.createElement("div");
-  el.className="notif "+type;
-  const icon=type==="success"?"✓":"ℹ";
-  el.innerHTML=`<span class="notif-icon">${icon}</span><span class="notif-text">${text}</span><span class="notif-close" onclick="dismissNotif(this)">✕</span>`;
+function showNotif(title, description, type) {
+  type = type || "info";
+  const icons = { success: "✓", error: "✕", info: "ℹ" };
+  const icon  = icons[type] || "ℹ";
+  const wrap  = document.getElementById("notifs");
+  const el    = document.createElement("div");
+  el.className = "notif " + type;
+  el.innerHTML = `
+    <span class="notif-icon">${icon}</span>
+    <span class="notif-text">
+      <span class="notif-title">${title}</span>
+      ${description ? `<span class="notif-desc">${description}</span>` : ""}
+    </span>
+    <span class="notif-close" onclick="dismissNotif(this)">✕</span>`;
   wrap.appendChild(el);
-  setTimeout(()=>{const c=el.querySelector(".notif-close");if(c)dismissNotif(c);},5000);
+  setTimeout(() => { const c = el.querySelector(".notif-close"); if(c) dismissNotif(c); }, 5000);
 }
+
+  
 function dismissNotif(closeBtn){
   const el=closeBtn.closest(".notif");
   if(!el)return;
@@ -727,9 +743,9 @@ function dismissNotif(closeBtn){
 }
 
 showMenu();
-setTimeout(()=>showNotif("Initializing Menu, Bypasses & Account Data...","info"),400);
-setTimeout(()=>showNotif("In Game Bypasses loaded successfully!","success"),1400);
-setTimeout(()=>showNotif("Lean Menu successfully loaded!","info"),2400);
+setTimeout(()=>showNotif("Crown Menu","Initializing bypasses & account data...","info"),400);
+setTimeout(()=>showNotif("Bypasses","In-game bypasses loaded successfully!","success"),1400);
+setTimeout(()=>showNotif("Ready","Lean Menu loaded!","info"),2400);
 </script>
 </body>
 </html>
