@@ -756,8 +756,7 @@ case "showKeybindSelector":
   // already visible by default
   break;
 
-case "keybindConfirmed":
-  // Step 1: show the confirm row with the key name
+case "keybindConfirmed": {
   const confirmKey = msg.key || "";
   document.getElementById("kb-confirm-key").textContent = confirmKey;
   document.getElementById("kb-confirm-row").classList.add("visible");
@@ -765,6 +764,7 @@ case "keybindConfirmed":
   document.getElementById("kb-cursor").style.animation = "none";
   document.getElementById("kb-cursor").style.opacity = "0";
   break;
+}
 
 case "keybindFinalised":
   // Step 2: player pressed Enter to confirm — animate out
