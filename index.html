@@ -165,7 +165,7 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 /* ── FREECAM OVERLAY ── */
 #freecam-overlay{
   position:fixed;top:0;left:0;width:100%;height:100%;
-  display:none;z-index:8000;pointer-events:none;
+  display:none;z-index:9500;pointer-events:none;  /* z-index above menu */
 }
 #freecam-overlay.visible{display:block;pointer-events:all;}
 
@@ -186,6 +186,7 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
   background:rgba(8,10,8,0.93);
   min-width:200px;overflow:hidden;
   pointer-events:all;
+  z-index:9501;
 }
 
 .fc-option{
@@ -210,7 +211,9 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
   position:absolute;right:200px;top:50%;transform:translateY(-50%);
   background:rgba(8,10,8,0.93);
   min-width:180px;overflow:hidden;
-  pointer-events:none;display:none;
+  pointer-events:all;   /* was pointer-events:none */
+  display:none;
+  z-index:9501;
 }
 #freecam-sub-panel.visible{display:block;}
 .fc-sub-item{
