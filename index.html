@@ -688,15 +688,28 @@ document.addEventListener("keydown", e => {
   switch (key) {
     case "ArrowUp":    e.preventDefault(); prevCursorIdx = cursorIdx; cursorIdx = (cursorIdx - 1 + nav.length) % nav.length; render(); break;
     case "ArrowDown":  e.preventDefault(); prevCursorIdx = cursorIdx; cursorIdx = (cursorIdx + 1) % nav.length; render(); break;
-    case "ArrowRight": e.preventDefault();
-      if (item && item.type === "slider") nudgeSlider(1);
-      else if (item && item.type === "scrollable") nudgeScrollable(1);
-      break;
-    case "ArrowLeft":  e.preventDefault();
-      if (item && item.type === "slider") nudgeSlider(-1);
-      else if (item && item.type === "scrollable") nudgeScrollable(-1);
-      else goBack();
-      break;
+case "ArrowRight":
+  e.preventDefault();
+
+  if (item && item.type === "slider") {
+    nudgeSlider(1);
+  } else if (item && item.type === "scrollable") {
+    nudgeScrollable(1);
+  }
+
+  break;
+case "ArrowLeft":
+  e.preventDefault();
+
+  if (item && item.type === "slider") {
+    nudgeSlider(-1);
+  } else if (item && item.type === "scrollable") {
+    nudgeScrollable(-1);
+  } else {
+    goBack();
+  }
+
+  break;
     case "Enter":     e.preventDefault(); activate(); break;
     case "Backspace": case "Escape": e.preventDefault(); goBack(); break;
   }
