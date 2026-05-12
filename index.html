@@ -743,7 +743,13 @@ window.addEventListener("message",ev=>{
       }
       break;
 
-
+case "freecamScroll":
+  if (freecamVisible) {
+    freecamHoveredIdx = (freecamHoveredIdx + (msg.delta > 0 ? 1 : -1) + FreecamOptions.length) % FreecamOptions.length;
+    renderFreecam();
+    sendGame({ action: "freecamOptionChange", index: freecamHoveredIdx + 1 });
+  }
+  break;
 
 
 case "showKeybindSelector":
