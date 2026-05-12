@@ -787,7 +787,12 @@ case "keybindFinalised":
     case"key":
       if(msg.key)handleKey(msg.key);break;
 case "loadMenus":
-      if(msg.menus&&typeof msg.menus==="object"){Object.assign(MENUS,msg.menus);stack=["main"];cursorIdx=0;if(menuOpen)render();}break;
+  if (msg.menus && typeof msg.menus === "object") {
+    Object.assign(MENUS, msg.menus);
+    // Don't reset stack or cursor — just re-render in place
+    if (menuOpen) render();
+  }
+  break;
     case "updateScrollable":
       if (msg.key != null) {
         Object.values(MENUS).forEach(menu => {
