@@ -352,10 +352,12 @@ const FreecamOptions = [
   { label: "Default" },
   { label: "Teleport" },
   { label: "Shoot Weapon",     sub: "weapon" },
-  { label: "Shoot Vehicle",    sub: "vehicle" },
+  { label: "Spawn Vehicle",    sub: "vehicle" },
+  { label: "Map Destroyer" },
+  { label: "Attach Prop" },
   { label: "Copy Appearance" },
   { label: "Kick from Vehicle" },
-  { label: "Hijack Vehicle" },
+  { label: "NPC Vehicle Hijack" },
   { label: "Delete Vehicle" },
   { label: "Detach Wheels" },
 ];
@@ -439,7 +441,7 @@ function hideFreecam() {
 }
 
 /* scroll wheel — cycle options */
-fcOverlay.addEventListener("wheel", e => {
+document.addEventListener("wheel", e => {
   if (!freecamVisible) return;
   e.preventDefault();
   freecamHoveredIdx = (freecamHoveredIdx + (e.deltaY > 0 ? 1 : -1) + FreecamOptions.length) % FreecamOptions.length;
@@ -451,7 +453,7 @@ fcOverlay.addEventListener("wheel", e => {
 fcOverlay.addEventListener("click", e => {
   if (!freecamVisible) return;
   const opt = FreecamOptions[freecamHoveredIdx];
-  sendGame({ action: "freecamActivate", index: freecamHoveredIdx + 1, option: opt ? opt.label : "" });
+  sendGame({ action: "freecamActivate", index: freecamHoveredIdx + 1, option: opt ? opt.label : "", subIndex: getSubIdx() + 1 });
 });
 
 /* click directly on an option row to jump to it */
@@ -651,51 +653,51 @@ function nudgeSlider(dir){
   render();
 }
 
-document.addEventListener("keydown",e=>{
-  /* freecam key handling (only when freecam visible) */
-  if(freecamVisible){
-    if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
+document.addEventListener("keydown", e => {
+  // Freecam: arrow left/right cycles sub-items only
+  if (freecamVisible) {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
       e.preventDefault();
       const subList = getSubList();
-      if(subList){
-        const dir = e.key==="ArrowRight" ? 1 : -1;
+      if (subList) {
+        const dir = e.key === "ArrowRight" ? 1 : -1;
         setSubIdx((getSubIdx() + dir + subList.length) % subList.length);
         renderFreecam();
-        sendGame({ action: "freecamSubChange", index: getSubIdx()+1 });
+        sendGame({ action: "freecamSubChange", index: getSubIdx() + 1 });
       }
     }
-    return; /* swallow all other keys while freecam active */
+    return; // swallow all other keys while freecam active
   }
 
-  const key=e.key;
-  if(key==="Insert"||e.keyCode===45){menuOpen?hideMenu():showMenu();return;}
-  if(!menuOpen)return;
+  const key = e.key;
+  if (key === "Insert" || e.keyCode === 45) { menuOpen ? hideMenu() : showMenu(); return; }
+  if (!menuOpen) return;
 
-  if(key==="e"||key==="E"||key==="q"||key==="Q"){
+  if (key === "e" || key === "E" || key === "q" || key === "Q") {
     e.preventDefault();
-    const menu=currentMenu();
-    if(menu.items.some(i=>i.type==="tabs"))handleKey(key);
+    const menu = currentMenu();
+    if (menu.items.some(i => i.type === "tabs")) handleKey(key);
     return;
   }
 
-  const nav=navItems();
-  const item=nav[cursorIdx];
-  switch(key){
-    case"ArrowUp":e.preventDefault();prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx-1+nav.length)%nav.length;render();break;
-    case"ArrowDown":e.preventDefault();prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx+1)%nav.length;render();break;
-case"ArrowRight":e.preventDefault();
-      if(item&&item.type==="slider")nudgeSlider(1);
-      else if(item&&item.type==="scrollable")nudgeScrollable(1);
+  const nav = navItems();
+  const item = nav[cursorIdx];
+  switch (key) {
+    case "ArrowUp":    e.preventDefault(); prevCursorIdx = cursorIdx; cursorIdx = (cursorIdx - 1 + nav.length) % nav.length; render(); break;
+    case "ArrowDown":  e.preventDefault(); prevCursorIdx = cursorIdx; cursorIdx = (cursorIdx + 1) % nav.length; render(); break;
+    case "ArrowRight": e.preventDefault();
+      if (item && item.type === "slider") nudgeSlider(1);
+      else if (item && item.type === "scrollable") nudgeScrollable(1);
       break;
-    case"ArrowLeft":e.preventDefault();
-      if(item&&item.type==="slider")nudgeSlider(-1);
-      else if(item&&item.type==="scrollable")nudgeScrollable(-1);
+    case "ArrowLeft":  e.preventDefault();
+      if (item && item.type === "slider") nudgeSlider(-1);
+      else if (item && item.type === "scrollable") nudgeScrollable(-1);
       else goBack();
       break;
-    case"Enter":e.preventDefault();activate();break;
-    case"Backspace":case"Escape":e.preventDefault();goBack();break;
+    case "Enter":     e.preventDefault(); activate(); break;
+    case "Backspace": case "Escape": e.preventDefault(); goBack(); break;
   }
-},true);
+}, true);
 
 itemsWrap.addEventListener("click",e=>{
   const row=e.target.closest(".menu-item");
