@@ -11,7 +11,7 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
 #overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:flex-start;justify-content:flex-start;padding:30px 0 0 20px;opacity:0;pointer-events:none;transition:opacity 0.22s ease;}
 #overlay.visible{opacity:1;pointer-events:all;}
 
-#panel{width:420px;background:rgba(6,9,6,0.96);border-radius:5px;overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 70px);transform:translateX(-18px);transition:transform 0.25s cubic-bezier(.22,.68,0,1.15);border:1px solid rgba(30,140,60,0.35);box-shadow:0 8px 48px rgba(0,0,0,0.85);}
+#panel{width:420px;background:rgba(6,9,6,0.96);border-radius:5px;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 70px);max-height:calc(100vh - 70px);transform:translateX(-18px);transition:transform 0.25s cubic-bezier(.22,.68,0,1.15);border:1px solid rgba(30,140,60,0.35);box-shadow:0 8px 48px rgba(0,0,0,0.85);}
 #overlay.visible #panel{transform:translateX(0);}
 
 #header{background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;max-height:110px;}
@@ -270,7 +270,7 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 <div id="overlay">
   <div id="panel">
     <div id="header">
-      <img src="https://media.discordapp.net/attachments/1148865996476657685/1503276857955455106/9d88f31f-8ea4-4ced-b679-35404289da5a.png?ex=6a0414ac&is=6a02c32c&hm=18b13da8447faf5d85d40b92993c0dd29ad1bdf850ca934c8abac498ea5e94b0&=&format=webp&quality=lossless&width=1322&height=881"
+      <img src="https://media.discordapp.net/attachments/1148865996476657685/1503276857955455106/9d88f31f-8ea4-4ced-b679-35404289da5a.png?ex=6a06b7ac&is=6a05662c&hm=5a63f8c8613c46f06a3579c9687b51273bb8b5c9e92042b2724c46d34f7ea210&=&format=webp&quality=lossless&width=1322&height=881"
            onerror="this.style.display='none';" />
     </div>
     <div id="breadcrumb">HOME</div>
