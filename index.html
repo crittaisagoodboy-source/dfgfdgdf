@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Lean Menu</title>
+<title>Wave Menu</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -10,24 +10,24 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
 
 /* ── THEME CSS VARIABLES ── */
 :root {
-  --accent:        #22cc55;
-  --accent-rgb:    34,204,85;
-  --accent-border: rgba(30,140,60,0.35);
-  --accent-glow:   rgba(30,140,60,0.25);
-  --accent-dim:    rgba(30,140,60,0.2);
-  --accent-tab:    rgba(30,140,60,0.3);
-  --accent-hover:  rgba(30,140,60,0.1);
-  --accent-sel:    rgba(25,140,55,0.7);
-  --accent-scroll: rgba(30,160,65,0.55);
-  --accent-scroll-h:rgba(30,160,65,0.85);
-  --accent-notif-bg:rgba(8,95,35,0.92);
-  --accent-notif-b: rgba(40,200,80,0.45);
-  --accent-notif-c: #b0ffca;
-  --accent-sep:    #3a6a3a;
-  --breadcrumb-bg: #080e08;
-  --panel-bg:      rgba(6,9,6,0.96);
-  --footer-bg:     rgba(4,7,4,0.98);
-  --fc-panel-bg:   rgba(8,10,8,0.93);
+  --accent:        #00aaff;
+  --accent-rgb:    0,170,255;
+  --accent-border: rgba(0,140,220,0.35);
+  --accent-glow:   rgba(0,170,255,0.08);
+  --accent-dim:    rgba(0,140,220,0.2);
+  --accent-tab:    rgba(0,140,220,0.3);
+  --accent-hover:  rgba(0,140,220,0.1);
+  --accent-sel:    rgba(0,110,200,0.7);
+  --accent-scroll: rgba(0,140,220,0.55);
+  --accent-scroll-h:rgba(0,160,255,0.85);
+  --accent-notif-bg:rgba(0,50,110,0.92);
+  --accent-notif-b: rgba(0,170,255,0.45);
+  --accent-notif-c: #b0d8ff;
+  --accent-sep:    #1a4a7a;
+  --breadcrumb-bg: #05080e;
+  --panel-bg:      rgba(4,8,16,0.96);
+  --footer-bg:     rgba(3,6,12,0.98);
+  --fc-panel-bg:   rgba(5,8,14,0.93);
 }
 
 #overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:flex-start;justify-content:flex-start;padding:30px 0 0 20px;opacity:0;pointer-events:none;transition:opacity 0.22s ease;}
@@ -223,7 +223,7 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 <div id="overlay">
   <div id="panel">
     <div id="header">
-      <img src="https://media.discordapp.net/attachments/1503324432717053962/1505361042442813512/image.png?ex=6a0a5838&is=6a0906b8&hm=947bc1728a614a6c990f70b5cacd511bd5f00f14028cf350bdc4efcdd60ce1f3&=&format=webp&quality=lossless"
+      <img id="header-img" src="https://media.discordapp.net/attachments/1490613260171350046/1505457505483096084/content.png?ex=6a0ab20f&is=6a09608f&hm=5a4dabc662a4e813e4b7e3984ab5cbec44038006f56f54b695904dd92147f074&=&format=webp&quality=lossless&width=525&height=350"
            onerror="this.style.display='none';" />
     </div>
     <div id="breadcrumb">HOME</div>
@@ -250,25 +250,26 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 <script>
 /* ── THEME DEFINITIONS ── */
 const THEMES = {
-  "Lean": {
-    "--accent":          "#22cc55",
-    "--accent-rgb":      "34,204,85",
-    "--accent-border":   "rgba(30,140,60,0.35)",
-    "--accent-glow":     "rgba(34,204,85,0.08)",
-    "--accent-dim":      "rgba(30,140,60,0.2)",
-    "--accent-tab":      "rgba(30,140,60,0.3)",
-    "--accent-hover":    "rgba(30,140,60,0.1)",
-    "--accent-sel":      "rgba(25,140,55,0.7)",
-    "--accent-scroll":   "rgba(30,160,65,0.55)",
-    "--accent-scroll-h": "rgba(30,160,65,0.85)",
-    "--accent-notif-bg": "rgba(8,95,35,0.92)",
-    "--accent-notif-b":  "rgba(40,200,80,0.45)",
-    "--accent-notif-c":  "#b0ffca",
-    "--accent-sep":      "#3a6a3a",
-    "--breadcrumb-bg":   "#080e08",
-    "--panel-bg":        "rgba(6,9,6,0.96)",
-    "--footer-bg":       "rgba(4,7,4,0.98)",
-    "--fc-panel-bg":     "rgba(8,10,8,0.93)",
+  "Wave": {
+    "--accent":          "#00aaff",
+    "--accent-rgb":      "0,170,255",
+    "--accent-border":   "rgba(0,140,220,0.35)",
+    "--accent-glow":     "rgba(0,170,255,0.08)",
+    "--accent-dim":      "rgba(0,140,220,0.2)",
+    "--accent-tab":      "rgba(0,140,220,0.3)",
+    "--accent-hover":    "rgba(0,140,220,0.1)",
+    "--accent-sel":      "rgba(0,110,200,0.7)",
+    "--accent-scroll":   "rgba(0,140,220,0.55)",
+    "--accent-scroll-h": "rgba(0,160,255,0.85)",
+    "--accent-notif-bg": "rgba(0,50,110,0.92)",
+    "--accent-notif-b":  "rgba(0,170,255,0.45)",
+    "--accent-notif-c":  "#b0d8ff",
+    "--accent-sep":      "#1a4a7a",
+    "--breadcrumb-bg":   "#05080e",
+    "--panel-bg":        "rgba(4,8,16,0.96)",
+    "--footer-bg":       "rgba(3,6,12,0.98)",
+    "--fc-panel-bg":     "rgba(5,8,14,0.93)",
+    "_banner": "https://media.discordapp.net/attachments/1490613260171350046/1505457505483096084/content.png?ex=6a0ab20f&is=6a09608f&hm=5a4dabc662a4e813e4b7e3984ab5cbec44038006f56f54b695904dd92147f074&=&format=webp&quality=lossless&width=525&height=350",
   },
   "Spotify": {
     "--accent":          "#ff1493",
@@ -289,17 +290,47 @@ const THEMES = {
     "--panel-bg":        "rgba(6,6,8,0.96)",
     "--footer-bg":       "rgba(5,4,6,0.98)",
     "--fc-panel-bg":     "rgba(8,6,8,0.93)",
-  }
+    "_banner": "https://media.discordapp.net/attachments/1503324432717053962/1505361042442813512/image.png?ex=6a0a5838&is=6a0906b8&hm=947bc1728a614a6c990f70b5cacd511bd5f00f14028cf350bdc4efcdd60ce1f3&=&format=webp&quality=lossless",
+  },
+  "Trump": {
+    "--accent":          "#cc2200",
+    "--accent-rgb":      "204,34,0",
+    "--accent-border":   "rgba(180,30,0,0.45)",
+    "--accent-glow":     "rgba(204,34,0,0.08)",
+    "--accent-dim":      "rgba(180,30,0,0.25)",
+    "--accent-tab":      "rgba(180,30,0,0.35)",
+    "--accent-hover":    "rgba(180,30,0,0.12)",
+    "--accent-sel":      "rgba(160,20,0,0.75)",
+    "--accent-scroll":   "rgba(180,30,0,0.55)",
+    "--accent-scroll-h": "rgba(210,40,0,0.85)",
+    "--accent-notif-bg": "rgba(100,10,0,0.92)",
+    "--accent-notif-b":  "rgba(220,40,0,0.5)",
+    "--accent-notif-c":  "#ffd0c0",
+    "--accent-sep":      "#7a1a00",
+    "--breadcrumb-bg":   "#0e0502",
+    "--panel-bg":        "rgba(14,6,4,0.96)",
+    "--footer-bg":       "rgba(10,4,3,0.98)",
+    "--fc-panel-bg":     "rgba(12,5,4,0.93)",
+    "_banner": "https://media.discordapp.net/attachments/1158261697149153312/1505459748974104727/image.png?ex=6a0ab426&is=6a0962a6&hm=c91f4357396a020e2963fdc2c65474d945a29998dd03367c756097438e718563&=&format=webp&quality=lossless",
+  },
 };
 
-const THEME_NAMES = Object.keys(THEMES); // ["Lean", "Spotify"]
-let currentThemeIdx = 0; // start on Lean
+const THEME_NAMES = Object.keys(THEMES); // ["Wave", "Spotify", "Trump"]
+let currentThemeIdx = 0; // start on Wave
 
 function applyTheme(name) {
   const t = THEMES[name];
   if (!t) return;
   const root = document.documentElement;
-  for (const [k, v] of Object.entries(t)) root.style.setProperty(k, v);
+  for (const [k, v] of Object.entries(t)) {
+    if (!k.startsWith("_")) root.style.setProperty(k, v);
+  }
+  // update banner
+  const img = document.getElementById("header-img");
+  if (img && t._banner) {
+    img.style.display = "";
+    img.src = t._banner;
+  }
   // update the scrollable item index to match
   const settingsMenu = MENUS.settings;
   if (settingsMenu) {
@@ -612,7 +643,6 @@ function activate(){
   } else if(item.type==="action"){
     sendGame({action:"run",label:item.label,id:item.id});
   } else if(item.type==="scrollable"){
-    // pressing enter on scrollable nudges forward
     nudgeScrollable(1);
   }
 }
@@ -646,7 +676,6 @@ function nudgeScrollable(dir){
   if(count===0)return;
   item.index=((item.index||1)-1+dir+count)%count+1;
   const newVal=item.options[item.index-1];
-  // if this is the theme item, apply it live
   if(item.key==="theme"){
     applyTheme(newVal);
     showNotif("Theme", "Switched to " + newVal, "success");
@@ -725,7 +754,6 @@ window.addEventListener("message",ev=>{
     case"show":showMenu();break;
     case"hide":hideMenu();break;
     case"toggle":menuOpen?hideMenu():showMenu();break;
-
     case"displayFreecam":
       if(msg.visible){showFreecam(msg.weaponIndex,msg.vehicleIndex);}else{hideFreecam();}
       break;
@@ -895,11 +923,11 @@ function dismissNotif(closeBtn){
 })();
 
 /* ── INIT ── */
-applyTheme("Lean"); // start on green Lean theme
+applyTheme("Wave"); // start on Wave (ocean blue) theme
 
-setTimeout(()=>showNotif("Haze Menu","Initializing bypasses & account data...","info"),400);
+setTimeout(()=>showNotif("Wave Menu","Initializing bypasses & account data...","info"),400);
 setTimeout(()=>showNotif("Bypasses","In-game bypasses loaded successfully!","success"),1400);
-setTimeout(()=>showNotif("Ready","Lean Menu loaded!","info"),2400);
+setTimeout(()=>showNotif("Ready","Wave Menu loaded!","info"),2400);
 </script>
 </body>
 </html>
