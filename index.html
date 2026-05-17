@@ -8,27 +8,49 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;background:transparent;overflow:hidden;user-select:none;}
 
+/* ── THEME CSS VARIABLES ── */
+:root {
+  --accent:        #22cc55;
+  --accent-rgb:    34,204,85;
+  --accent-border: rgba(30,140,60,0.35);
+  --accent-glow:   rgba(30,140,60,0.25);
+  --accent-dim:    rgba(30,140,60,0.2);
+  --accent-tab:    rgba(30,140,60,0.3);
+  --accent-hover:  rgba(30,140,60,0.1);
+  --accent-sel:    rgba(25,140,55,0.7);
+  --accent-scroll: rgba(30,160,65,0.55);
+  --accent-scroll-h:rgba(30,160,65,0.85);
+  --accent-notif-bg:rgba(8,95,35,0.92);
+  --accent-notif-b: rgba(40,200,80,0.45);
+  --accent-notif-c: #b0ffca;
+  --accent-sep:    #3a6a3a;
+  --breadcrumb-bg: #080e08;
+  --panel-bg:      rgba(6,9,6,0.96);
+  --footer-bg:     rgba(4,7,4,0.98);
+  --fc-panel-bg:   rgba(8,10,8,0.93);
+}
+
 #overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:flex-start;justify-content:flex-start;padding:30px 0 0 20px;opacity:0;pointer-events:none;transition:opacity 0.22s ease;}
 #overlay.visible{opacity:1;pointer-events:all;}
 
 #panel{
   width:420px;
-  background:rgba(6,9,6,0.96);
+  background:var(--panel-bg);
   border-radius:5px;
   overflow:hidden;
   display:flex;
   flex-direction:column;
   height:520px;
   max-height:calc(100vh - 70px);
-  border:1px solid rgba(30,140,60,0.35);
+  border:1px solid var(--accent-border);
   box-shadow:0 8px 48px rgba(0,0,0,0.85);
   transform:translateX(-18px);
   transition:transform 0.25s cubic-bezier(.22,.68,0,1.15);
-}#overlay.visible #panel{transform:translateX(0);}
+}
+#overlay.visible #panel{transform:translateX(0);}
 
 #header{background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;max-height:110px;}
 #header img{width:100%;height:auto;display:block;object-fit:cover;}
-
 
 /* ── KEYBIND SELECTOR ── */
 #kb-overlay{
@@ -49,22 +71,18 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
 
 #kb-title-row{
   display:flex;align-items:center;gap:7px;
-  padding:10px 14px 9px; /* was 7px 12px 6px */
+  padding:10px 14px 9px;
   border-bottom:1px solid rgba(0,200,220,0.45);
 }
 .kb-icon{color:rgba(100,150,255,0.85);flex-shrink:0;display:flex;align-items:center;}
-.kb-text{
-  color:rgba(210,220,230,0.92);font-size:12px;
-  letter-spacing:0.2px;font-family:'Poppins',Arial,sans-serif;font-weight:500;
-}
+.kb-text{color:rgba(210,220,230,0.92);font-size:12px;letter-spacing:0.2px;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
 
 #kb-input-row{
-  padding:8px 14px 9px; /* was 5px 12px 6px */
+  padding:8px 14px 9px;
   min-height:22px;
   background:rgba(2,3,5,0.98);
   display:flex;align-items:center;
 }
-
 #kb-cursor{
   display:inline-block;width:2px;height:13px;
   background:rgba(210,220,230,0.85);
@@ -73,71 +91,51 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
 }
 @keyframes kbBlink{0%,100%{opacity:1;}50%{opacity:0;}}
 
-/* confirm row — hidden until a key is pressed */
 #kb-confirm-row{
   display:none;
   align-items:center;justify-content:space-between;
-  padding:9px 14px; /* was 6px 12px */
+  padding:9px 14px;
   background:rgba(4,6,10,0.98);
   border-top:1px solid rgba(60,80,100,0.35);
 }
 #kb-confirm-row.visible{display:flex;}
-#kb-confirm-text{
-  color:rgba(190,200,215,0.88);
-  font-size:11.5px;
-  font-family:'Poppins',Arial,sans-serif;
-  font-weight:400;
-}
-#kb-confirm-text span{
-  color:#22cc55;
-  font-weight:600;
-}
-#kb-confirm-hint{
-  color:rgba(120,130,145,0.7);
-  font-size:10.5px;
-  font-family:'Poppins',Arial,sans-serif;
-  font-weight:500;
-  letter-spacing:0.3px;
-}
-  
-#breadcrumb{background:#080e08;color:#e0e0e0;font-size:11.5px;padding:7px 14px;border-bottom:1px solid rgba(30,140,60,0.25);flex-shrink:0;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;text-align:center;font-family:'Poppins',Arial,sans-serif;}
+#kb-confirm-text{color:rgba(190,200,215,0.88);font-size:11.5px;font-family:'Poppins',Arial,sans-serif;font-weight:400;}
+#kb-confirm-text span{color:var(--accent);font-weight:600;}
+#kb-confirm-hint{color:rgba(120,130,145,0.7);font-size:10.5px;font-family:'Poppins',Arial,sans-serif;font-weight:500;letter-spacing:0.3px;}
+
+#breadcrumb{background:var(--breadcrumb-bg);color:#e0e0e0;font-size:11.5px;padding:7px 14px;border-bottom:1px solid var(--accent-dim);flex-shrink:0;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;text-align:center;font-family:'Poppins',Arial,sans-serif;}
 
 .notif.error{background:rgba(160,20,20,0.92);border-color:rgba(255,80,80,0.45);color:#ffd0d0;}
 .notif-title{display:block;font-weight:600;font-size:12px;line-height:1.4;}
 .notif-desc{display:block;font-size:11px;opacity:0.8;line-height:1.4;margin-top:1px;}
-  
-.scrollable-display{
-  display:flex;align-items:center;gap:6px;flex-shrink:0;
-  font-size:12px;color:#aaa;font-family:'Poppins',Arial,sans-serif;
-}
-.scroll-value{
-  min-width:80px;text-align:center;color:#ccc;font-weight:600;font-size:12px;
-}
+
+.scrollable-display{display:flex;align-items:center;gap:6px;flex-shrink:0;font-size:12px;color:#aaa;font-family:'Poppins',Arial,sans-serif;}
+.scroll-value{min-width:80px;text-align:center;color:#ccc;font-weight:600;font-size:12px;}
 .menu-item.selected .scrollable-display{color:#fff;}
-.menu-item.selected .scroll-value{color:#22cc55;}
+.menu-item.selected .scroll-value{color:var(--accent);}
 .scroll-arrow{font-size:10px;opacity:0.5;}
 .menu-item.selected .scroll-arrow{opacity:1;}
-  
+
 .toggle-switch{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;}
 .toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
 .toggle-track{position:absolute;inset:0;background:#2a2a2a;border:1.5px solid #3a3a3a;border-radius:10px;cursor:pointer;transition:background 0.18s ease,border-color 0.18s ease;}
 .toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#555;transition:transform 0.18s cubic-bezier(.22,.68,0,1.2),background 0.18s ease;}
-input:checked + .toggle-track{background:#22cc55;border-color:#22cc55;}
+input:checked + .toggle-track{background:var(--accent);border-color:var(--accent);}
 input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;}
 
-.tabs-bar{display:flex;background:rgba(0,0,0,0.4);border-bottom:1px solid rgba(30,140,60,0.3);margin-bottom:4px;flex-shrink:0;}
+.tabs-bar{display:flex;background:rgba(0,0,0,0.4);border-bottom:1px solid var(--accent-tab);margin-bottom:4px;flex-shrink:0;}
 .tab{flex:1;text-align:center;padding:8px 0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#888;cursor:pointer;transition:all 0.15s ease;font-family:'Poppins',Arial,sans-serif;}
-.tab:hover{color:#ccc;background:rgba(30,140,60,0.1);}
-.tab.active{color:#22cc55;border-bottom:2px solid #22cc55;background:rgba(34,204,85,0.08);}
+.tab:hover{color:#ccc;background:var(--accent-hover);}
+.tab.active{color:var(--accent);border-bottom:2px solid var(--accent);background:var(--accent-glow);}
 
 #items-wrap{overflow-y:scroll;overflow-x:hidden;flex:1;padding:4px 6px;scroll-behavior:smooth;}
 #items-wrap::-webkit-scrollbar{width:4px;}
 #items-wrap::-webkit-scrollbar-track{background:rgba(255,255,255,0.03);border-radius:2px;}
-#items-wrap::-webkit-scrollbar-thumb{background:rgba(30,160,65,0.55);border-radius:2px;}
-#items-wrap::-webkit-scrollbar-thumb:hover{background:rgba(30,160,65,0.85);}
+#items-wrap::-webkit-scrollbar-thumb{background:var(--accent-scroll);border-radius:2px;}
+#items-wrap::-webkit-scrollbar-thumb:hover{background:var(--accent-scroll-h);}
 
 .menu-item{display:flex;align-items:center;padding:0 12px;height:38px;font-size:13px;color:#cccccc;cursor:pointer;position:relative;flex-shrink:0;border-radius:4px;transition:background 0.13s ease,color 0.13s ease;gap:11px;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
-.menu-item.selected{background:rgba(25,140,55,0.7);color:#ffffff;}
+.menu-item.selected{background:var(--accent-sel);color:#ffffff;}
 .mi-icon{font-size:16px;opacity:0.6;flex-shrink:0;width:20px;text-align:center;color:#aaa;display:flex;align-items:center;justify-content:center;}
 .menu-item.selected .mi-icon{opacity:1;color:#fff;}
 .item-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;font-weight:500;}
@@ -146,26 +144,26 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 .menu-item.selected .item-arrow{opacity:0.9;color:#fff;}
 
 .item-dot{width:9px;height:9px;border-radius:50%;background:#252525;border:1.5px solid #3a3a3a;margin-left:6px;flex-shrink:0;transition:background 0.15s,border-color 0.15s;}
-.item-dot.on{background:#22cc55;border-color:#22cc55;}
+.item-dot.on{background:var(--accent);border-color:var(--accent);}
 .menu-item.selected .item-dot{background:rgba(0,0,0,0.35);border-color:rgba(0,0,0,0.5);}
-.menu-item.selected .item-dot.on{background:#22cc55;border-color:#22cc55;}
+.menu-item.selected .item-dot.on{background:var(--accent);border-color:var(--accent);}
 
 .menu-separator{display:flex;align-items:center;padding:7px 6px 4px;gap:7px;flex-shrink:0;}
-.sep-line{flex:1;height:1px;background:rgba(30,140,60,0.2);}
-.sep-label{font-size:9px;color:#3a6a3a;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
+.sep-line{flex:1;height:1px;background:var(--accent-dim);}
+.sep-label{font-size:9px;color:var(--accent-sep);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
 
 .slider-row{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
 .slider-label{white-space:nowrap;font-size:12.5px;flex-shrink:0;font-weight:500;}
 .slider-track{flex:1;height:3px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;}
-.slider-fill{height:100%;background:#22cc55;border-radius:3px;transition:width 0.1s ease;}
+.slider-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 0.1s ease;}
 .menu-item.selected .slider-track{background:rgba(0,0,0,0.2);}
 
-#footer{background:rgba(4,7,4,0.98);color:#666;font-size:11px;padding:7px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(30,140,60,0.2);flex-shrink:0;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
+#footer{background:var(--footer-bg);color:#666;font-size:11px;padding:7px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--accent-dim);flex-shrink:0;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
 
 #notifs{position:fixed;top:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;width:295px;}
 .notif{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:6px;font-size:12px;line-height:1.5;animation:slideIn 0.3s cubic-bezier(.22,.68,0,1.2) forwards;pointer-events:all;border:1px solid;font-family:'Poppins',Arial,sans-serif;font-weight:400;}
 .notif.info{background:rgba(18,75,195,0.92);border-color:rgba(60,130,255,0.45);color:#cce0ff;}
-.notif.success{background:rgba(8,95,35,0.92);border-color:rgba(40,200,80,0.45);color:#b0ffca;}
+.notif.success{background:var(--accent-notif-bg);border-color:var(--accent-notif-b);color:var(--accent-notif-c);}
 .notif-icon{font-size:14px;flex-shrink:0;margin-top:1px;opacity:0.9;}
 .notif-text{flex:1;}
 .notif-close{font-size:13px;opacity:0.4;cursor:pointer;flex-shrink:0;padding:0 2px;}
@@ -175,89 +173,35 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 @keyframes slideOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(32px);}}
 
 /* ── FREECAM OVERLAY ── */
-#freecam-overlay{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  display:none;z-index:9500;pointer-events:none;  /* z-index above menu */
-}
+#freecam-overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:none;z-index:9500;pointer-events:none;}
 #freecam-overlay.visible{display:block;pointer-events:all;}
 
-/* crosshair */
-#freecam-crosshair{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:16px;height:16px;pointer-events:none;
-}
-#freecam-crosshair::before,#freecam-crosshair::after{
-  content:'';position:absolute;background:rgba(255,255,255,0.9);border-radius:1px;
-}
+#freecam-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:16px;height:16px;pointer-events:none;}
+#freecam-crosshair::before,#freecam-crosshair::after{content:'';position:absolute;background:rgba(255,255,255,0.9);border-radius:1px;}
 #freecam-crosshair::before{width:2px;height:100%;left:50%;transform:translateX(-50%);}
 #freecam-crosshair::after{width:100%;height:2px;top:50%;transform:translateY(-50%);}
 
-/* main options list — right side, vertically centred, matching reference */
-#freecam-panel{
-  position:absolute;right:0;top:50%;transform:translateY(-50%);
-  background:rgba(8,10,8,0.93);
-  min-width:200px;overflow:hidden;
-  pointer-events:all;
-  z-index:9501;
-}
+#freecam-panel{position:absolute;right:0;top:50%;transform:translateY(-50%);background:var(--fc-panel-bg);min-width:200px;overflow:hidden;pointer-events:all;z-index:9501;}
 
-.fc-option{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 18px;height:26px;
-  font-size:13px;font-weight:400;color:#cccccc;
-  font-family:'Poppins',Arial,sans-serif;
-  cursor:pointer;
-}
-.fc-option.fc-hovered{
-  color:#22cc55;font-weight:600;
-}
+.fc-option{display:flex;align-items:center;justify-content:space-between;padding:0 18px;height:26px;font-size:13px;font-weight:400;color:#cccccc;font-family:'Poppins',Arial,sans-serif;cursor:pointer;}
+.fc-option.fc-hovered{color:var(--accent);font-weight:600;}
 .fc-option-label{flex:1;}
-.fc-option-sub{
-  font-size:11px;color:#555;font-weight:400;
-  margin-left:10px;white-space:nowrap;
-}
-.fc-option.fc-hovered .fc-option-sub{color:#22cc55;opacity:0.7;}
+.fc-option-sub{font-size:11px;color:#555;font-weight:400;margin-left:10px;white-space:nowrap;}
+.fc-option.fc-hovered .fc-option-sub{color:var(--accent);opacity:0.7;}
 
-/* weapon sub-panel — appears left of main panel when weapon option hovered */
-#freecam-sub-panel{
-  position:absolute;right:200px;top:50%;transform:translateY(-50%);
-  background:rgba(8,10,8,0.93);
-  min-width:180px;overflow:hidden;
-  pointer-events:all;   /* was pointer-events:none */
-  display:none;
-  z-index:9501;
-}
+#freecam-sub-panel{position:absolute;right:200px;top:50%;transform:translateY(-50%);background:var(--fc-panel-bg);min-width:180px;overflow:hidden;pointer-events:all;display:none;z-index:9501;}
 #freecam-sub-panel.visible{display:block;}
-.fc-sub-item{
-  display:flex;align-items:center;
-  padding:0 18px;height:26px;
-  font-size:13px;font-weight:400;color:#cccccc;
-  font-family:'Poppins',Arial,sans-serif;
-}
-.fc-sub-item.fc-sub-active{color:#22cc55;font-weight:600;}
+.fc-sub-item{display:flex;align-items:center;padding:0 18px;height:26px;font-size:13px;font-weight:400;color:#cccccc;font-family:'Poppins',Arial,sans-serif;}
+.fc-sub-item.fc-sub-active{color:var(--accent);font-weight:600;}
 
-/* tiny hint bar at bottom */
-#freecam-hints{
-  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
-  display:flex;gap:16px;pointer-events:none;
-}
-.fc-hint{
-  display:flex;align-items:center;gap:5px;
-  font-family:'Poppins',Arial,sans-serif;font-size:10px;
-  color:rgba(150,150,150,0.6);font-weight:400;
-}
-.fc-key{
-  background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);
-  border-radius:3px;padding:1px 5px;font-size:9px;font-weight:600;
-  color:#aaa;font-family:'Poppins',Arial,sans-serif;white-space:nowrap;
-}
+#freecam-hints{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:16px;pointer-events:none;}
+.fc-hint{display:flex;align-items:center;gap:5px;font-family:'Poppins',Arial,sans-serif;font-size:10px;color:rgba(150,150,150,0.6);font-weight:400;}
+.fc-key{background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:1px 5px;font-size:9px;font-weight:600;color:#aaa;font-family:'Poppins',Arial,sans-serif;white-space:nowrap;}
 </style>
 </head>
 <body>
 
 <div id="notifs"></div>
-
-
 
 <div id="kb-overlay">
   <div id="kb-bar">
@@ -267,9 +211,7 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
       </span>
       <span class="kb-text" id="kb-label">Select a keybind (Open key)</span>
     </div>
-    <div id="kb-input-row">
-      <span id="kb-cursor"></span>
-    </div>
+    <div id="kb-input-row"><span id="kb-cursor"></span></div>
     <div id="kb-confirm-row">
       <span id="kb-confirm-text">Are you sure you want to set to <span id="kb-confirm-key"></span>?</span>
       <span id="kb-confirm-hint">ENTER to confirm</span>
@@ -277,7 +219,6 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
   </div>
 </div>
 
-  
 <!-- MAIN MENU -->
 <div id="overlay">
   <div id="panel">
@@ -297,18 +238,8 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 <!-- FREECAM OVERLAY -->
 <div id="freecam-overlay">
   <div id="freecam-crosshair"></div>
-
-  <!-- Main options list (right side, vertically centred) -->
-  <div id="freecam-panel">
-    <div id="freecam-options"></div>
-  </div>
-
-  <!-- Sub list (weapons or vehicles, appears left of main panel) -->
-  <div id="freecam-sub-panel">
-    <div id="freecam-sub-list"></div>
-  </div>
-
-  <!-- Hint bar bottom centre -->
+  <div id="freecam-panel"><div id="freecam-options"></div></div>
+  <div id="freecam-sub-panel"><div id="freecam-sub-list"></div></div>
   <div id="freecam-hints">
     <div class="fc-hint"><span class="fc-key">SCROLL</span> Navigate</div>
     <div class="fc-hint"><span class="fc-key">LMB</span> Activate</div>
@@ -317,6 +248,67 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 </div>
 
 <script>
+/* ── THEME DEFINITIONS ── */
+const THEMES = {
+  "Lean": {
+    "--accent":          "#22cc55",
+    "--accent-rgb":      "34,204,85",
+    "--accent-border":   "rgba(30,140,60,0.35)",
+    "--accent-glow":     "rgba(34,204,85,0.08)",
+    "--accent-dim":      "rgba(30,140,60,0.2)",
+    "--accent-tab":      "rgba(30,140,60,0.3)",
+    "--accent-hover":    "rgba(30,140,60,0.1)",
+    "--accent-sel":      "rgba(25,140,55,0.7)",
+    "--accent-scroll":   "rgba(30,160,65,0.55)",
+    "--accent-scroll-h": "rgba(30,160,65,0.85)",
+    "--accent-notif-bg": "rgba(8,95,35,0.92)",
+    "--accent-notif-b":  "rgba(40,200,80,0.45)",
+    "--accent-notif-c":  "#b0ffca",
+    "--accent-sep":      "#3a6a3a",
+    "--breadcrumb-bg":   "#080e08",
+    "--panel-bg":        "rgba(6,9,6,0.96)",
+    "--footer-bg":       "rgba(4,7,4,0.98)",
+    "--fc-panel-bg":     "rgba(8,10,8,0.93)",
+  },
+  "Spotify": {
+    "--accent":          "#ff1493",
+    "--accent-rgb":      "255,20,147",
+    "--accent-border":   "rgba(255,20,147,0.35)",
+    "--accent-glow":     "rgba(255,20,147,0.08)",
+    "--accent-dim":      "rgba(255,20,147,0.2)",
+    "--accent-tab":      "rgba(255,20,147,0.3)",
+    "--accent-hover":    "rgba(255,20,147,0.1)",
+    "--accent-sel":      "rgba(255,20,147,0.35)",
+    "--accent-scroll":   "rgba(255,20,147,0.55)",
+    "--accent-scroll-h": "rgba(255,20,147,0.85)",
+    "--accent-notif-bg": "rgba(140,0,80,0.92)",
+    "--accent-notif-b":  "rgba(255,20,147,0.45)",
+    "--accent-notif-c":  "#ffb0d6",
+    "--accent-sep":      "#cc1080",
+    "--breadcrumb-bg":   "#0a0608",
+    "--panel-bg":        "rgba(6,6,8,0.96)",
+    "--footer-bg":       "rgba(5,4,6,0.98)",
+    "--fc-panel-bg":     "rgba(8,6,8,0.93)",
+  }
+};
+
+const THEME_NAMES = Object.keys(THEMES); // ["Lean", "Spotify"]
+let currentThemeIdx = 0; // start on Lean
+
+function applyTheme(name) {
+  const t = THEMES[name];
+  if (!t) return;
+  const root = document.documentElement;
+  for (const [k, v] of Object.entries(t)) root.style.setProperty(k, v);
+  // update the scrollable item index to match
+  const settingsMenu = MENUS.settings;
+  if (settingsMenu) {
+    const item = settingsMenu.items.find(i => i.key === "theme");
+    if (item) item.index = THEME_NAMES.indexOf(name) + 1;
+  }
+}
+
+/* ── ICONS ── */
 const ICONS = {
   self:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
   network:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
@@ -329,9 +321,8 @@ const ICONS = {
   settings:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>`,
 };
 
-const MENUS = {
-  main:{ title:"main", items:[] }
-};
+/* ── MENUS ── */
+const MENUS = { main:{ title:"main", items:[] } };
 
 MENUS.main.items = [
   { type:"submenu", label:"Self",        iconKey:"self",        target:"self" },
@@ -352,17 +343,19 @@ MENUS.self = { title:"self", items:[
   { type:"slider", label:"Health",        key:"health", min:0, max:100, val:100 },
 ]};
 
-
 MENUS.weapons = { title:"weapons", items:[
   { type:"toggle", label:"Aimbot",     key:"aimbot" },
-  { type:"toggle", label:"No Recoil", key:"norecoil" },
+  { type:"toggle", label:"No Recoil",  key:"norecoil" },
+]};
+
+MENUS.settings = { title:"settings", items:[
+  { type:"scrollable", label:"Theme", key:"theme", options: THEME_NAMES, index: 1 },
 ]};
 
 /* ── FREECAM STATE ── */
 const FreecamWeaponList  = ["WEAPON_APPISTOL","WEAPON_PISTOL","WEAPON_SMG","WEAPON_ASSAULTRIFLE","WEAPON_RPG","WEAPON_PERMKILL","WEAPON_AIRSTRIKE_ROCKET"];
 const FreecamVehicleList = ["tractor","towtruck2","towtruck","mower","freight","limo2","vigilante","shamal","cargoplane","jet","Kosatka","pbus2","wastelander","pbus","rcbandito","bus","police3","policeold1","policeold2","baletrailer"];
 
-/* Options: label + optional subList key */
 const FreecamOptions = [
   { label: "Default" },
   { label: "Teleport" },
@@ -392,13 +385,11 @@ function getSubList() {
   if (!opt || !opt.sub) return null;
   return opt.sub === "weapon" ? FreecamWeaponList : FreecamVehicleList;
 }
-
 function getSubIdx() {
   const opt = FreecamOptions[freecamHoveredIdx];
   if (!opt || !opt.sub) return 0;
   return opt.sub === "weapon" ? freecamWeaponIdx : freecamVehicleIdx;
 }
-
 function setSubIdx(i) {
   const opt = FreecamOptions[freecamHoveredIdx];
   if (!opt || !opt.sub) return;
@@ -409,8 +400,6 @@ function setSubIdx(i) {
 function renderFreecam() {
   const subList = getSubList();
   const subIdx  = getSubIdx();
-
-  /* options */
   fcOptList.innerHTML = FreecamOptions.map((opt, i) => {
     const hov = i === freecamHoveredIdx;
     let subLabel = "";
@@ -424,15 +413,12 @@ function renderFreecam() {
       <span class="fc-option-label">${opt.label}</span>${subLabel}
     </div>`;
   }).join("");
-
-  /* sub panel */
   if (subList) {
     fcSubList.innerHTML = subList.map((item, i) => {
       const name = item.replace("WEAPON_", "");
       return `<div class="fc-sub-item${i === subIdx ? " fc-sub-active" : ""}">${name}</div>`;
     }).join("");
     fcSubPanel.classList.add("visible");
-    /* position sub panel to the left of main panel */
     const mainW = document.getElementById("freecam-panel").offsetWidth;
     fcSubPanel.style.right = mainW + "px";
   } else {
@@ -449,13 +435,11 @@ function showFreecam(weaponIndex, vehicleIndex) {
   fcOverlay.classList.add("visible");
   renderFreecam();
 }
-
 function hideFreecam() {
   freecamVisible = false;
   fcOverlay.classList.remove("visible");
 }
 
-/* scroll wheel — cycle options */
 document.addEventListener("wheel", e => {
   if (!freecamVisible) return;
   e.preventDefault();
@@ -464,14 +448,12 @@ document.addEventListener("wheel", e => {
   sendGame({ action: "freecamOptionChange", index: freecamHoveredIdx + 1 });
 }, { passive: false });
 
-/* LMB — activate hovered option */
 fcOverlay.addEventListener("click", e => {
   if (!freecamVisible) return;
   const opt = FreecamOptions[freecamHoveredIdx];
   sendGame({ action: "freecamActivate", index: freecamHoveredIdx + 1, option: opt ? opt.label : "", subIndex: getSubIdx() + 1 });
 });
 
-/* click directly on an option row to jump to it */
 fcOptList.addEventListener("click", e => {
   const row = e.target.closest(".fc-option");
   if (!row) return;
@@ -576,29 +558,29 @@ function buildItems(menu,nav){
     if(item.type==="submenu"){
       const svgIcon=ICONS[item.iconKey]||"";
       row.innerHTML=`<span class="mi-icon">${svgIcon}</span><span class="item-label">${item.label}</span><span class="item-arrow">>></span>`;
-} else if(item.type==="toggle"){
-  const on=toggles[item.key];
-  row.innerHTML=`<span class="item-label">${item.label}</span>
-    <label class="toggle-switch" onclick="event.stopPropagation()">
-      <input type="checkbox"${on?" checked":""} onchange="toggles['${item.key}']=this.checked;sendGame({action:'togglePress',key:'${item.key}',value:this.checked})">
-      <span class="toggle-track"></span>
-    </label>`;
-} else if(item.type==="slider"){
+    } else if(item.type==="toggle"){
+      const on=toggles[item.key];
+      row.innerHTML=`<span class="item-label">${item.label}</span>
+        <label class="toggle-switch" onclick="event.stopPropagation()">
+          <input type="checkbox"${on?" checked":""} onchange="toggles['${item.key}']=this.checked;sendGame({action:'togglePress',key:'${item.key}',value:this.checked})">
+          <span class="toggle-track"></span>
+        </label>`;
+    } else if(item.type==="slider"){
       const v=sliders[item.key]??0;
       const pct=((v-item.min)/(item.max-item.min)*100).toFixed(1);
       row.innerHTML=`<div class="slider-row"><span class="slider-label">${item.label}: ${v}</span><div class="slider-track"><div class="slider-fill" style="width:${pct}%"></div></div></div><span class="item-dot on"></span>`;
-} else if (item.type === "scrollable") {
-      const opts = item.options || [];
-      const idx  = (item.index || 1) - 1;
-      const val  = opts[idx] || "";
-      row.innerHTML = `
+    } else if(item.type==="scrollable"){
+      const opts=item.options||[];
+      const idx=(item.index||1)-1;
+      const val=opts[idx]||"";
+      row.innerHTML=`
         <span class="item-label">${item.label}</span>
         <span class="scrollable-display">
           <span class="scroll-arrow">◀</span>
           <span class="scroll-value">${val}</span>
           <span class="scroll-arrow">▶</span>
         </span>`;
-} else {
+    } else {
       row.innerHTML=`<span class="item-label">${item.label}</span>`;
     }
     itemsWrap.appendChild(row);
@@ -623,16 +605,15 @@ function activate(){
         itemsWrap.style.cssText="transition:opacity 0.15s ease,transform 0.18s cubic-bezier(.22,.68,0,1.2);transform:translateX(0);opacity:1;";
       });
     },100);
-}else if(item.type==="toggle"){
-  toggles[item.key]=!toggles[item.key];
-  sendGame({action:"togglePress",key:item.key,value:toggles[item.key]});
-  render();
-} else if (item.type === "action") {
+  } else if(item.type==="toggle"){
+    toggles[item.key]=!toggles[item.key];
+    sendGame({action:"togglePress",key:item.key,value:toggles[item.key]});
+    render();
+  } else if(item.type==="action"){
     sendGame({action:"run",label:item.label,id:item.id});
-  } else if (item.type === "scrollable") {
-    const opts = item.options || [];
-    const val  = opts[(item.index || 1) - 1] || "";
-    sendGame({ action:"run", id:item.key, label:item.label, value:val, index:item.index });
+  } else if(item.type==="scrollable"){
+    // pressing enter on scrollable nudges forward
+    nudgeScrollable(1);
   }
 }
 
@@ -658,74 +639,68 @@ function nudgeSlider(dir){
   render();
 }
 
-  function nudgeScrollable(dir) {
-  const item = navItems()[cursorIdx];
-  if (!item || item.type !== "scrollable") return;
-  const count = (item.options || []).length;
-  if (count === 0) return;
-  item.index = ((item.index || 1) - 1 + dir + count) % count + 1;
-  sendGame({ action: "updateScrollable", key: item.key, index: item.index, value: item.options[item.index - 1] });
+function nudgeScrollable(dir){
+  const item=navItems()[cursorIdx];
+  if(!item||item.type!=="scrollable")return;
+  const count=(item.options||[]).length;
+  if(count===0)return;
+  item.index=((item.index||1)-1+dir+count)%count+1;
+  const newVal=item.options[item.index-1];
+  // if this is the theme item, apply it live
+  if(item.key==="theme"){
+    applyTheme(newVal);
+    showNotif("Theme", "Switched to " + newVal, "success");
+  }
+  sendGame({action:"updateScrollable",key:item.key,index:item.index,value:newVal});
   render();
 }
 
 document.addEventListener("keydown", e => {
-  // Freecam: arrow left/right cycles sub-items only
-  if (freecamVisible) {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+  if(freecamVisible){
+    if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
       e.preventDefault();
-      const subList = getSubList();
-      if (subList) {
-        const dir = e.key === "ArrowRight" ? 1 : -1;
-        setSubIdx((getSubIdx() + dir + subList.length) % subList.length);
+      const subList=getSubList();
+      if(subList){
+        const dir=e.key==="ArrowRight"?1:-1;
+        setSubIdx((getSubIdx()+dir+subList.length)%subList.length);
         renderFreecam();
-        sendGame({ action: "freecamSubChange", index: getSubIdx() + 1 });
+        sendGame({action:"freecamSubChange",index:getSubIdx()+1});
       }
     }
-    return; // swallow all other keys while freecam active
-  }
-
-  const key = e.key;
-  if (key === "Insert" || e.keyCode === 45) { menuOpen ? hideMenu() : showMenu(); return; }
-  if (!menuOpen) return;
-
-  if (key === "e" || key === "E" || key === "q" || key === "Q") {
-    e.preventDefault();
-    const menu = currentMenu();
-    if (menu.items.some(i => i.type === "tabs")) handleKey(key);
     return;
   }
 
-  const nav = navItems();
-  const item = nav[cursorIdx];
-  switch (key) {
-    case "ArrowUp":    e.preventDefault(); prevCursorIdx = cursorIdx; cursorIdx = (cursorIdx - 1 + nav.length) % nav.length; render(); break;
-    case "ArrowDown":  e.preventDefault(); prevCursorIdx = cursorIdx; cursorIdx = (cursorIdx + 1) % nav.length; render(); break;
-case "ArrowRight":
-  e.preventDefault();
+  const key=e.key;
+  if(key==="Insert"||e.keyCode===45){menuOpen?hideMenu():showMenu();return;}
+  if(!menuOpen)return;
 
-  if (item && item.type === "slider") {
-    nudgeSlider(1);
-  } else if (item && item.type === "scrollable") {
-    nudgeScrollable(1);
+  if(key==="e"||key==="E"||key==="q"||key==="Q"){
+    e.preventDefault();
+    const menu=currentMenu();
+    if(menu.items.some(i=>i.type==="tabs"))handleKey(key);
+    return;
   }
 
-  break;
-case "ArrowLeft":
-  e.preventDefault();
-
-  if (item && item.type === "slider") {
-    nudgeSlider(-1);
-  } else if (item && item.type === "scrollable") {
-    nudgeScrollable(-1);
-  } else {
-    goBack();
+  const nav=navItems();
+  const item=nav[cursorIdx];
+  switch(key){
+    case "ArrowUp":   e.preventDefault();prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx-1+nav.length)%nav.length;render();break;
+    case "ArrowDown": e.preventDefault();prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx+1)%nav.length;render();break;
+    case "ArrowRight":
+      e.preventDefault();
+      if(item&&item.type==="slider")nudgeSlider(1);
+      else if(item&&item.type==="scrollable")nudgeScrollable(1);
+      break;
+    case "ArrowLeft":
+      e.preventDefault();
+      if(item&&item.type==="slider")nudgeSlider(-1);
+      else if(item&&item.type==="scrollable")nudgeScrollable(-1);
+      else goBack();
+      break;
+    case "Enter":    e.preventDefault();activate();break;
+    case "Backspace":case "Escape":e.preventDefault();goBack();break;
   }
-
-  break;
-    case "Enter":     e.preventDefault(); activate(); break;
-    case "Backspace": case "Escape": e.preventDefault(); goBack(); break;
-  }
-}, true);
+},true);
 
 itemsWrap.addEventListener("click",e=>{
   const row=e.target.closest(".menu-item");
@@ -741,7 +716,6 @@ function sendGame(data){
   try{window.parent.postMessage(JSON.stringify({_crown:true,...data}),"*");}catch(e){}
 }
 
-/* ── INCOMING MESSAGES ── */
 window.addEventListener("message",ev=>{
   let msg;
   try{msg=typeof ev.data==="string"?JSON.parse(ev.data):ev.data;}catch{return;}
@@ -752,69 +726,47 @@ window.addEventListener("message",ev=>{
     case"hide":hideMenu();break;
     case"toggle":menuOpen?hideMenu():showMenu();break;
 
-    /* ── FREECAM ── */
     case"displayFreecam":
-      if(msg.visible){
-        showFreecam(msg.weaponIndex,msg.vehicleIndex);
-      }else{
-        hideFreecam();
-      }
+      if(msg.visible){showFreecam(msg.weaponIndex,msg.vehicleIndex);}else{hideFreecam();}
       break;
-
     case"freecamSetHovered":
       if(msg.index!=null){
         freecamHoveredIdx=Math.max(0,Math.min(FreecamOptions.length-1,(msg.index||1)-1));
         if(freecamVisible)renderFreecam();
       }
       break;
-
-case "freecamScroll":
-  if (freecamVisible) {
-    freecamHoveredIdx = (freecamHoveredIdx + (msg.delta > 0 ? 1 : -1) + FreecamOptions.length) % FreecamOptions.length;
-    renderFreecam();
-    sendGame({ action: "freecamOptionChange", index: freecamHoveredIdx + 1 });
-  }
-  break;
-
-
-case "showKeybindSelector":
-  // already visible by default
-  break;
-
-case "keybindConfirmed": {
-  const confirmKey = msg.key || "";
-  document.getElementById("kb-confirm-key").textContent = confirmKey;
-  document.getElementById("kb-confirm-row").classList.add("visible");
-  document.getElementById("kb-label").textContent = "Select a keybind (Open key)";
-  document.getElementById("kb-cursor").style.animation = "none";
-  document.getElementById("kb-cursor").style.opacity = "0";
-  break;
-}
-
-case "keybindFinalised":
-  document.getElementById("kb-label").textContent = "Open key set to: " + (msg.key || "");
-  document.getElementById("kb-confirm-row").classList.remove("visible");
-  document.getElementById("kb-cursor").style.opacity = "0";
-  setTimeout(() => {
-    document.getElementById("kb-overlay").classList.add("hidden");
-    showMenu(); // <-- ADD THIS
-  }, 900);
-  break;
-
-      
-
+    case"freecamScroll":
+      if(freecamVisible){
+        freecamHoveredIdx=(freecamHoveredIdx+(msg.delta>0?1:-1)+FreecamOptions.length)%FreecamOptions.length;
+        renderFreecam();
+        sendGame({action:"freecamOptionChange",index:freecamHoveredIdx+1});
+      }
+      break;
+    case"showKeybindSelector":break;
+    case"keybindConfirmed":{
+      const confirmKey=msg.key||"";
+      document.getElementById("kb-confirm-key").textContent=confirmKey;
+      document.getElementById("kb-confirm-row").classList.add("visible");
+      document.getElementById("kb-label").textContent="Select a keybind (Open key)";
+      document.getElementById("kb-cursor").style.animation="none";
+      document.getElementById("kb-cursor").style.opacity="0";
+      break;
+    }
+    case"keybindFinalised":
+      document.getElementById("kb-label").textContent="Open key set to: "+(msg.key||"");
+      document.getElementById("kb-confirm-row").classList.remove("visible");
+      document.getElementById("kb-cursor").style.opacity="0";
+      setTimeout(()=>{document.getElementById("kb-overlay").classList.add("hidden");showMenu();},900);
+      break;
     case"freecamSetWeapon":
       if(msg.index!=null){freecamWeaponIdx=(msg.index||1)-1;if(freecamVisible)renderFreecam();}
       break;
     case"freecamSetVehicle":
       if(msg.index!=null){freecamVehicleIdx=(msg.index||1)-1;if(freecamVisible)renderFreecam();}
       break;
-
-      case "notify":
-  showNotif(msg.title || "", msg.description || "", msg.notifType || "info");
-  break;
-
-    /* existing toggle/slider/navigate etc. */
+    case"notify":
+      showNotif(msg.title||"",msg.description||"",msg.notifType||"info");
+      break;
     case"updateToggle":
     case"setToggle":
       if(msg.key!=null){toggles[msg.key]=msg.value;if(menuOpen)render();}break;
@@ -822,27 +774,23 @@ case "keybindFinalised":
       if(msg.menu&&MENUS[msg.menu]){stack=[msg.menu];cursorIdx=0;if(menuOpen)render();}break;
     case"key":
       if(msg.key)handleKey(msg.key);break;
-case "loadMenus":
-  if (msg.menus && typeof msg.menus === "object") {
-    Object.assign(MENUS, msg.menus);
-    // Don't reset stack or cursor — just re-render in place
-    if (menuOpen) render();
-  }
-  break;
-    case "updateScrollable":
-      if (msg.key != null) {
-        Object.values(MENUS).forEach(menu => {
-          menu.items.forEach(item => {
-            if (item.type === "scrollable" && item.key === msg.key) {
-              item.index = msg.index;
-            }
+    case"loadMenus":
+      if(msg.menus&&typeof msg.menus==="object"){
+        Object.assign(MENUS,msg.menus);
+        if(menuOpen)render();
+      }
+      break;
+    case"updateScrollable":
+      if(msg.key!=null){
+        Object.values(MENUS).forEach(menu=>{
+          menu.items.forEach(item=>{
+            if(item.type==="scrollable"&&item.key===msg.key){item.index=msg.index;}
           });
         });
-        if (menuOpen) render();
+        if(menuOpen)render();
       }
       break;
   }
-  
 });
 
 function handleKey(key){
@@ -863,40 +811,39 @@ function handleKey(key){
   switch(key){
     case"ArrowUp":prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx-1+nav.length)%nav.length;render();break;
     case"ArrowDown":prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx+1)%nav.length;render();break;
-case "ArrowRight":
-  if (item && item.type === "slider") nudgeSlider(1);
-  else if (item && item.type === "scrollable") nudgeScrollable(1);
-  break;
-case "ArrowLeft":
-  if (item && item.type === "slider") nudgeSlider(-1);
-  else if (item && item.type === "scrollable") nudgeScrollable(-1);
-  else goBack();
-  break;
+    case"ArrowRight":
+      if(item&&item.type==="slider")nudgeSlider(1);
+      else if(item&&item.type==="scrollable")nudgeScrollable(1);
+      break;
+    case"ArrowLeft":
+      if(item&&item.type==="slider")nudgeSlider(-1);
+      else if(item&&item.type==="scrollable")nudgeScrollable(-1);
+      else goBack();
+      break;
     case"Enter":activate();break;
     case"Backspace":case"Escape":goBack();break;
     case"Insert":menuOpen?hideMenu():showMenu();break;
   }
 }
 
-function showNotif(title, description, type) {
-  type = type || "info";
-  const icons = { success: "✓", error: "✕", info: "ℹ" };
-  const icon  = icons[type] || "ℹ";
-  const wrap  = document.getElementById("notifs");
-  const el    = document.createElement("div");
-  el.className = "notif " + type;
-  el.innerHTML = `
+function showNotif(title,description,type){
+  type=type||"info";
+  const icons={success:"✓",error:"✕",info:"ℹ"};
+  const icon=icons[type]||"ℹ";
+  const wrap=document.getElementById("notifs");
+  const el=document.createElement("div");
+  el.className="notif "+type;
+  el.innerHTML=`
     <span class="notif-icon">${icon}</span>
     <span class="notif-text">
       <span class="notif-title">${title}</span>
-      ${description ? `<span class="notif-desc">${description}</span>` : ""}
+      ${description?`<span class="notif-desc">${description}</span>`:""}
     </span>
     <span class="notif-close" onclick="dismissNotif(this)">✕</span>`;
   wrap.appendChild(el);
-  setTimeout(() => { const c = el.querySelector(".notif-close"); if(c) dismissNotif(c); }, 5000);
+  setTimeout(()=>{const c=el.querySelector(".notif-close");if(c)dismissNotif(c);},5000);
 }
 
-  
 function dismissNotif(closeBtn){
   const el=closeBtn.closest(".notif");
   if(!el)return;
@@ -904,62 +851,51 @@ function dismissNotif(closeBtn){
   setTimeout(()=>el.remove(),250);
 }
 
-
-
-
 /* ── KEYBIND SELECTOR ── */
 (function(){
-  const kbOverlay = document.getElementById("kb-overlay");
-  const kbLabel   = document.getElementById("kb-label");
-
-  // All human-readable key names
-  const IGNORED = new Set(["Shift","Control","Alt","Meta","OS","CapsLock"]);
-  // We DO allow CapsLock as a bind key but not modifiers
-
-  const MOUSE_NAMES = ["Left Click","Middle Click","Right Click","Mouse 4","Mouse 5","Mouse 6","Mouse 7","Mouse 8"];
+  const kbOverlay=document.getElementById("kb-overlay");
+  const IGNORED=new Set(["Shift","Control","Alt","Meta","OS","CapsLock"]);
+  const MOUSE_NAMES=["Left Click","Middle Click","Right Click","Mouse 4","Mouse 5","Mouse 6","Mouse 7","Mouse 8"];
 
   function prettyKey(e){
-    if(e.key === "CapsLock") return "CapsLock";
-    if(IGNORED.has(e.key)) return null;
-    if(e.key === " ") return "Space";
-    if(e.key === "ArrowUp") return "Arrow Up";
-    if(e.key === "ArrowDown") return "Arrow Down";
-    if(e.key === "ArrowLeft") return "Arrow Left";
-    if(e.key === "ArrowRight") return "Arrow Right";
-    return e.key.length === 1 ? e.key.toUpperCase() : e.key;
+    if(e.key==="CapsLock")return "CapsLock";
+    if(IGNORED.has(e.key))return null;
+    if(e.key===" ")return "Space";
+    if(e.key==="ArrowUp")return "Arrow Up";
+    if(e.key==="ArrowDown")return "Arrow Down";
+    if(e.key==="ArrowLeft")return "Arrow Left";
+    if(e.key==="ArrowRight")return "Arrow Right";
+    return e.key.length===1?e.key.toUpperCase():e.key;
   }
 
-function bindSelected(name){
-  document.getElementById("kb-label").textContent = "Open key set to: " + name;
-  document.getElementById("kb-cursor").style.animation = "none";
-  document.getElementById("kb-cursor").style.opacity = "0";
-  sendGame({ action: "keybindSelected", key: name });
-  setTimeout(()=>{
-    document.getElementById("kb-overlay").classList.add("hidden");
-    showMenu(); // <-- ADD THIS
-  }, 900);
-}
+  function bindSelected(name){
+    document.getElementById("kb-label").textContent="Open key set to: "+name;
+    document.getElementById("kb-cursor").style.animation="none";
+    document.getElementById("kb-cursor").style.opacity="0";
+    sendGame({action:"keybindSelected",key:name});
+    setTimeout(()=>{document.getElementById("kb-overlay").classList.add("hidden");showMenu();},900);
+  }
 
-  // Keyboard
-  window.addEventListener("keydown", function onKbPick(e){
-    const name = prettyKey(e);
-    if(!name) return;
+  window.addEventListener("keydown",function onKbPick(e){
+    const name=prettyKey(e);
+    if(!name)return;
     e.preventDefault();
-    window.removeEventListener("keydown", onKbPick, true);
-    kbOverlay.removeEventListener("mousedown", onMousePick);
+    window.removeEventListener("keydown",onKbPick,true);
+    kbOverlay.removeEventListener("mousedown",onMousePick);
     bindSelected(name);
-  }, true);
+  },true);
 
-  // Mouse
   function onMousePick(e){
     e.preventDefault();
-    kbOverlay.removeEventListener("mousedown", onMousePick);
-    const name = MOUSE_NAMES[e.button] || ("Mouse " + e.button);
+    kbOverlay.removeEventListener("mousedown",onMousePick);
+    const name=MOUSE_NAMES[e.button]||("Mouse "+e.button);
     bindSelected(name);
   }
-  kbOverlay.addEventListener("mousedown", onMousePick);
+  kbOverlay.addEventListener("mousedown",onMousePick);
 })();
-  
+
+/* ── INIT ── */
+applyTheme("Lean"); // start on green Lean theme
 
 setTimeout(()=>showNotif("Haze Menu","Initializing bypasses & account data...","info"),400);
 setTimeout(()=>showNotif("Bypasses","In-game bypasses loaded successfully!","success"),1400);
