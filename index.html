@@ -30,6 +30,8 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
   --fc-panel-bg:   rgba(5,8,14,0.93);
 }
 
+  
+
 #overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:flex-start;justify-content:flex-start;padding:30px 0 0 20px;opacity:0;pointer-events:none;transition:opacity 0.22s ease;}
 #overlay.visible{opacity:1;pointer-events:all;}
 
@@ -49,6 +51,61 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
 }
 #overlay.visible #panel{transform:translateX(0);}
 
+
+/* ── PLAYER INFO BOX ── */
+#player-info-box{
+  position:fixed;
+  top:30px;
+  left:460px;
+  width:300px;
+  background:rgba(4,8,16,0.97);
+  border:1px solid var(--accent-border);
+  border-radius:5px;
+  overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,0.8);
+  font-family:'Poppins',Arial,sans-serif;
+  transition:opacity 0.2s ease, transform 0.2s cubic-bezier(.22,.68,0,1.15);
+  z-index:8000;
+}
+#player-info-box.pib-hidden{opacity:0;pointer-events:none;transform:translateX(-10px);}
+#player-info-box:not(.pib-hidden){opacity:1;pointer-events:all;transform:translateX(0);}
+
+.pib-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 14px 8px;
+  background:rgba(0,0,0,0.4);
+  border-bottom:1px solid var(--accent-tab);
+}
+#pib-name{color:#fff;font-size:13px;font-weight:600;letter-spacing:0.3px;}
+#pib-serverid{color:var(--accent);font-size:12px;font-weight:600;background:rgba(0,120,255,0.15);border:1px solid var(--accent-border);padding:1px 8px;border-radius:3px;}
+
+.pib-rows{padding:6px 0;}
+.pib-row{
+  display:flex;align-items:center;gap:8px;
+  padding:4px 14px;
+  font-size:12px;color:#aaa;
+}
+.pib-icon{font-size:12px;width:16px;text-align:center;flex-shrink:0;}
+.pib-label{flex:1;color:#888;font-size:11.5px;}
+.pib-val{color:#ddd;font-weight:600;font-size:12px;}
+
+.pib-bars{
+  padding:8px 14px 10px;
+  border-top:1px solid var(--accent-dim);
+}
+.pib-bar-row{
+  display:flex;align-items:center;gap:6px;
+  margin-bottom:5px;font-size:11px;
+}
+.pib-bar-label{color:#888;flex:1;}
+.pib-bar-pct{color:#fff;font-weight:600;font-size:11px;min-width:30px;text-align:right;}
+.pib-bar-wrap{display:flex;gap:6px;}
+.pib-bar-track{flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
+.pib-bar-fill{height:100%;border-radius:3px;transition:width 0.3s ease;}
+.pib-bar-fill.hp{background:#3ddc84;}
+.pib-bar-fill.armor{background:var(--accent);}
+
+  
 #header{background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;max-height:110px;}
 #header img{width:100%;height:auto;display:block;object-fit:cover;}
 
@@ -203,6 +260,31 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 
 <div id="notifs"></div>
 
+  <div id="player-info-box" class="pib-hidden">
+  <div class="pib-header">
+    <span id="pib-name"></span>
+    <span id="pib-serverid"></span>
+  </div>
+  <div class="pib-rows">
+    <div class="pib-row"><span class="pib-icon">📍</span><span class="pib-label">Distance</span><span class="pib-val" id="pib-distance">—</span></div>
+    <div class="pib-row"><span class="pib-icon">🚗</span><span class="pib-label">Vehicle</span><span class="pib-val" id="pib-vehicle">—</span></div>
+    <div class="pib-row"><span class="pib-icon">🔫</span><span class="pib-label">Weapon</span><span class="pib-val" id="pib-weapon">—</span></div>
+    <div class="pib-row"><span class="pib-icon">⚡</span><span class="pib-label">Speed</span><span class="pib-val" id="pib-speed">—</span></div>
+  </div>
+  <div class="pib-bars">
+    <div class="pib-bar-row">
+      <span class="pib-bar-label">❤️ Health</span>
+      <span class="pib-bar-pct" id="pib-hp-pct">—</span>
+      <span class="pib-bar-label">🛡 Armor</span>
+      <span class="pib-bar-pct" id="pib-armor-pct">—</span>
+    </div>
+    <div class="pib-bar-wrap">
+      <div class="pib-bar-track hp"><div class="pib-bar-fill hp" id="pib-hp-bar"></div></div>
+      <div class="pib-bar-track armor"><div class="pib-bar-fill armor" id="pib-armor-bar"></div></div>
+    </div>
+  </div>
+</div>
+
 <div id="kb-overlay">
   <div id="kb-bar">
     <div id="kb-title-row">
@@ -235,6 +317,8 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
   </div>
 </div>
 
+
+  
 <!-- FREECAM OVERLAY -->
 <div id="freecam-overlay">
   <div id="freecam-crosshair"></div>
@@ -247,6 +331,8 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
   </div>
 </div>
 
+
+  
 <script>
 /* ── THEME DEFINITIONS ── */
 const THEMES = {
@@ -314,6 +400,42 @@ const THEMES = {
     "_banner": "https://media.discordapp.net/attachments/1158261697149153312/1505459748974104727/image.png?ex=6a0ab426&is=6a0962a6&hm=c91f4357396a020e2963fdc2c65474d945a29998dd03367c756097438e718563&=&format=webp&quality=lossless",
   },
 };
+
+  /* ── PLAYER INFO BOX ── */
+const pib = document.getElementById("player-info-box");
+
+function showPlayerInfo(data) {
+  document.getElementById("pib-name").textContent     = data.name       || "Unknown";
+  document.getElementById("pib-serverid").textContent = data.serverId   || "?";
+  document.getElementById("pib-distance").textContent = data.distance   != null ? data.distance + "m"    : "—";
+  document.getElementById("pib-vehicle").textContent  = data.vehicle    || "On Foot";
+  document.getElementById("pib-weapon").textContent   = data.weapon     || "Unarmed";
+  document.getElementById("pib-speed").textContent    = data.speed      != null ? data.speed + "km/h"    : "—";
+
+  const hp    = Math.max(0, Math.min(100, data.health ?? 100));
+  const armor = Math.max(0, Math.min(100, data.armor  ?? 0));
+  document.getElementById("pib-hp-pct").textContent    = hp    + "%";
+  document.getElementById("pib-armor-pct").textContent = armor + "%";
+  document.getElementById("pib-hp-bar").style.width    = hp    + "%";
+  document.getElementById("pib-armor-bar").style.width = armor + "%";
+
+  pib.classList.remove("pib-hidden");
+}
+
+function hidePlayerInfo() {
+  pib.classList.add("pib-hidden");
+}
+
+// Listen for updates from Lua
+window.addEventListener("message", ev => {
+  let msg;
+  try { msg = typeof ev.data === "string" ? JSON.parse(ev.data) : ev.data; } catch { return; }
+  if (!msg || msg._crown) return;
+  if (msg.action === "playerInfo") {
+    if (msg.visible === false) { hidePlayerInfo(); return; }
+    showPlayerInfo(msg);
+  }
+});
 
 const THEME_NAMES = Object.keys(THEMES); // ["Wave", "Spotify", "Trump"]
 let currentThemeIdx = 0; // start on Wave
