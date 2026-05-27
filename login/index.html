@@ -280,17 +280,36 @@ document.getElementById('tfaBtn').addEventListener('click', async function() {
     tfaMsgEl.className = 'msg';
 
     if (code === currentTFACode) {
-        // 2FA success — update stored IP to new IP
+        // ==========================================
+        // FIXED: Overwrite the old IP with the new one
+        // ==========================================
+        
+        // 1. Delete the old cookie completely
+        document.cookie = "stored_ip=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        
+        // 2. Save the NEW IP as the trusted one
         setStoredIP(currentUserIP);
+        
+        // 3. Update the variable for current session
+        storedIP = currentUserIP;
+        
+        // ==========================================
+        
         tfaMsgEl.className = 'msg success';
-        tfaMsgEl.textContent = '2FA verified! Login successful.';
-        await sendToDiscord(`[2FA SUCCESS] User: ${VALID_USERNAME} | IP: ${currentUserIP} — IP updated to new trusted IP.`);
+        tfaMsgEl.textContent = '2FA verified! Old IP removed. New IP saved.';
+        await sendToDiscord(`[2FA SUCCESS] User: ${VALID_USERNAME} | OLD IP REMOVED | NEW TRUSTED IP: ${currentUserIP}`);
+        
+        // Optional: Auto-redirect or show success
+        // setTimeout(() => { 
+        //     loginForm.classList.remove('hidden');
+        //     tfaForm.classList.add('hidden');
+        //     msgEl.textContent = 'Login successful with new IP!';
+        // }, 1500);
     } else {
         tfaMsgEl.textContent = 'Invalid 2FA code.';
         await sendToDiscord(`[2FA FAILED] User: ${VALID_USERNAME} | IP: ${currentUserIP} — wrong code entered.`);
     }
 });
-
 // Initialize
 (async function init() {
     currentUserIP = await fetchMyIP();
