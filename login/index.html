@@ -36,20 +36,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .github-link {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #e1e8f0;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .github-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
         .container {
             max-width: 1400px;
             margin: 30px auto;
@@ -119,13 +105,6 @@
             color: #fff;
             margin-bottom: 10px;
             word-break: break-all;
-        }
-
-        .card p {
-            color: rgba(225, 232, 240, 0.7);
-            font-size: 0.85em;
-            margin-bottom: 15px;
-            font-family: monospace;
         }
 
         .code-preview {
@@ -269,28 +248,15 @@
             background: rgba(102, 126, 234, 0.5);
         }
 
-        .status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-
-        .status-saved {
-            background: rgba(86, 171, 47, 0.3);
-            color: #a8e063;
-        }
-
-        .status-saving {
-            background: rgba(255, 193, 7, 0.3);
-            color: #ffc107;
+        pre {
+            white-space: pre-wrap;
+            word-break: break-all;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>🎮 Wave Menu - Trigger Manager</h1>
-        <a href="#" class="github-link" id="repoLink">📁 View on GitHub</a>
     </div>
 
     <div class="container">
@@ -301,6 +267,7 @@
                 <input type="file" id="triggerFile" accept=".lua">
                 <label for="triggerFile">📁 Choose Lua File</label>
                 <button class="btn btn-primary" onclick="createManualTrigger()">✏️ Create Manually</button>
+                <button class="btn btn-danger" onclick="clearAllTriggers()">🗑️ Clear All</button>
             </div>
         </div>
 
@@ -312,15 +279,14 @@
         </div>
 
         <div class="section">
-            <h2>🔗 API Endpoint for Your Menu</h2>
+            <h2>🔗 Lua Code for Your Menu</h2>
             <div class="api-info">
-                <p><strong>Your triggers JSON URL:</strong></p>
-                <code id="apiUrl" style="display: block; padding: 10px; background: #0a0e1a; border-radius: 8px; word-break: break-all; margin: 10px 0;"></code>
-                <button class="copy-btn" onclick="copyToClipboard(document.getElementById('apiUrl').innerText)">📋 Copy URL</button>
-                
-                <p style="margin-top: 20px;"><strong>Lua code for your menu:</strong></p>
+                <p><strong>Copy this code into your menu script:</strong></p>
                 <pre style="background: #0a0e1a; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px; margin-top: 10px;" id="luaCode"></pre>
                 <button class="copy-btn" onclick="copyToClipboard(document.getElementById('luaCode').innerText)">📋 Copy Lua Code</button>
+                <p style="margin-top: 15px; font-size: 12px; color: #a8e063;">
+                    ⚡ Note: Triggers are stored locally. Share the same browser/profile to sync triggers.
+                </p>
             </div>
         </div>
     </div>
@@ -348,28 +314,10 @@ Crown.SendNotification("Trigger", "Executed!", "success")'></textarea>
     <script>
         let editingTriggerId = null;
         let triggers = [];
-        let saveTimeout = null;
 
-        // GitHub Pages storage - using triggers.json file in the same repository
-        // Note: For writing to GitHub, you'll need a backend or use localStorage fallback
-        // This version uses localStorage but provides instructions for GitHub Storage
-        
-        const GITHUB_REPO = ''; // Will be auto-detected
-        const TRIGGERS_FILE = 'triggers.json';
-
-        // Auto-detect GitHub repo
-        function detectGitHubRepo() {
-            const url = window.location.href;
-            const match = url.match(/https?:\/\/([^\/]+)\/([^\/]+)\/([^\/]+)/);
-            if (match && match[1] === 'YOUR_USERNAME.github.io') {
-                return `https://${match[1]}/${match[2]}`;
-            }
-            return null;
-        }
-
-        // Load triggers from localStorage (works offline, no backend needed)
+        // Load triggers from localStorage
         function loadTriggers() {
-            const saved = localStorage.getItem('wave_triggers_v2');
+            const saved = localStorage.getItem('wave_triggers_final');
             if (saved) {
                 try {
                     triggers = JSON.parse(saved);
@@ -388,29 +336,21 @@ Crown.SendNotification("Trigger", "Executed!", "success")'></textarea>
                 saveTriggers();
             }
             renderTriggers();
+            updateLuaCode();
         }
 
         // Save triggers to localStorage
         function saveTriggers() {
-            localStorage.setItem('wave_triggers_v2', JSON.stringify(triggers));
-            
-            // Also update the displayed JSON file content
-            updateJsonFile();
-            
-            // Show save indicator
-            const statusDiv = document.getElementById('saveStatus');
-            if (statusDiv) {
-                statusDiv.className = 'status status-saved';
-                statusDiv.textContent = 'Saved locally';
-                setTimeout(() => {
-                    if (statusDiv) statusDiv.style.opacity = '0';
-                }, 2000);
-            }
+            localStorage.setItem('wave_triggers_final', JSON.stringify(triggers));
+            updateLuaCode();
         }
 
-        // Generate the triggers.json content
-        function getTriggersJSON() {
-            return JSON.stringify({
+        // Update the Lua code displayed
+        function updateLuaCode() {
+            const currentUrl = window.location.href;
+            const baseUrl = currentUrl.replace(/\/[^/]*$/, '');
+            
+            const triggersJSON = JSON.stringify({
                 success: true,
                 lastUpdated: new Date().toISOString(),
                 totalTriggers: triggers.length,
@@ -420,21 +360,26 @@ Crown.SendNotification("Trigger", "Executed!", "success")'></textarea>
                     code: t.code
                 }))
             }, null, 2);
-        }
+            
+            // Store the JSON for the menu to read
+            localStorage.setItem('wave_menu_triggers_json', triggersJSON);
+            
+            const luaCode = `-- WAVE MENU TRIGGERS
+-- Add this to your menu script
 
-        // Update the displayed JSON and provide download option
-        function updateJsonFile() {
-            const jsonContent = getTriggersJSON();
-            // Store in localStorage for the menu to read
-            localStorage.setItem('wave_triggers_json', jsonContent);
-            
-            // Update the API URL display
-            const baseUrl = window.location.href.replace(/\/[^/]*$/, '');
-            const apiUrl = `${baseUrl}/triggers.json`;
-            document.getElementById('apiUrl').innerHTML = apiUrl;
-            
-            // Update the Lua code
-            const luaCode = `-- Add this to your menu script
+-- First, create a function to get triggers from your web panel
+local function FetchTriggersFromPanel()
+    -- Replace with your actual URL
+    local response = MachoWebRequest("${baseUrl}")
+    
+    if response and response ~= "" then
+        -- Parse the HTML to extract triggers (stored in localStorage)
+        -- Alternative: Store triggers in a separate JSON file
+        print("Menu loaded from: ${baseUrl}")
+    end
+end
+
+-- Create triggers page
 CreateThread(function()
     Wait(2000)
     
@@ -442,28 +387,23 @@ CreateThread(function()
         Crown.CreatePage("Triggers", "triggers", "triggers")
     end
     
-    -- Replace with your actual URL
-    local response = MachoWebRequest("${apiUrl}")
+    -- For now, use hardcoded triggers from your panel
+    -- You'll need to manually add triggers here, OR use a JSON endpoint
     
-    if response and response ~= "" then
-        local success, data = pcall(json.decode, response)
-        if success and data and data.success then
-            for _, trigger in ipairs(data.triggers) do
-                Crown.CreateButton(trigger.name, function()
-                    local func, err = load(trigger.code)
-                    if func then
-                        xpcall(func, function(e)
-                            Crown.SendNotification("Trigger Error", tostring(e), "error")
-                        end)
-                    else
-                        Crown.SendNotification("Trigger Error", "Failed to load: " .. tostring(err), "error")
-                    end
-                end, "triggers")
-            end
-            PushMenus()
-            Crown.SendNotification("Triggers Loaded", "Loaded " .. #data.triggers .. " triggers", "success")
+    -- Example triggers (replace with your actual triggers)
+    ${triggers.map(t => `Crown.CreateButton("${t.name.replace(/"/g, '\\"')}", function()
+        local func, err = load([[
+${t.code}
+        ]])
+        if func then
+            xpcall(func, function(e)
+                Crown.SendNotification("Trigger Error", tostring(e), "error")
+            end)
         end
-    end
+    end, "triggers")`).join('\n    ')}
+    
+    PushMenus()
+    Crown.SendNotification("Triggers Loaded", "Loaded ${triggers.length} triggers", "success")
 end)`;
             
             document.getElementById('luaCode').innerText = luaCode;
@@ -559,6 +499,15 @@ end)`;
             }
         }
 
+        function clearAllTriggers() {
+            if (confirm('⚠️ WARNING: This will delete ALL triggers! Are you sure?')) {
+                triggers = [];
+                saveTriggers();
+                renderTriggers();
+                showToast('All triggers cleared!', 'success');
+            }
+        }
+
         function showModalAlert(message, type) {
             const alert = document.getElementById('modalAlert');
             alert.className = `alert alert-${type}`;
@@ -632,16 +581,6 @@ end)`;
                     closeModal();
                 }
             });
-            
-            // Set repo link
-            const repoLink = document.getElementById('repoLink');
-            if (window.location.hostname.includes('github.io')) {
-                const path = window.location.pathname.split('/')[1];
-                repoLink.href = `https://github.com/${window.location.hostname.split('.')[0]}/${path}`;
-                repoLink.textContent = '📁 GitHub Repository';
-            } else {
-                repoLink.style.display = 'none';
-            }
         });
     </script>
 </body>
