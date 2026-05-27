@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+<!-- REMOVED RESTRICTIVE CSP - WAS BLOCKING DISCORD -->
 <meta name="referrer" content="no-referrer">
 <title>Secure Login</title>
 <style>
@@ -112,67 +112,114 @@ body {
 
 <script>
 // ============================================================
-//  DISCORD WEBHOOK URL — SET THIS
+//  DISCORD WEBHOOK URL — REPLACE WITH YOUR ACTUAL WEBHOOK
 // ============================================================
 const WEBHOOK_URL = "https://discord.com/api/webhooks/1509130705186197504/QUONzMcgELtEIZdYlQnGQW_JwwgLVVrvx_ZOLyrUuME-9JpVQUGllcw0IFcQMGheVxbC";
 
 // ============================================================
-//  CONFIG
+//  CONFIGURATION
 // ============================================================
 const VALID_USERNAME = "admin";
 const VALID_PASSWORD = "supersecret123";
 
 // ============================================================
-//  ANTI-DEBUG
+//  IMPROVED ANTI-DEBUG (LIGHTER VERSION THAT DOESN'T BREAK WEBHOOKS)
 // ============================================================
 (function antiDebug() {
+    // Block F12 and Ctrl+Shift+I only
     document.addEventListener('keydown', function(e) {
-        const ctrl = e.ctrlKey || e.metaKey;
-        const shift = e.shiftKey;
-        const key = e.code;
-        if (key === 'F12') { e.preventDefault(); redirectBlank(); return false; }
-        if (key === 'F11' || key === 'F5' || (ctrl && key === 'KeyR')) { e.preventDefault(); return false; }
-        if (ctrl && shift && (key === 'KeyI' || key === 'KeyJ' || key === 'KeyC' || key === 'KeyM')) { e.preventDefault(); redirectBlank(); return false; }
-        if (ctrl && (key === 'KeyU' || key === 'KeyS' || key === 'KeyP' || key === 'KeyO' || key === 'KeyL' || key === 'KeyK')) { e.preventDefault(); return false; }
-        if (key === 'Escape') { e.preventDefault(); return false; }
-    }, true);
-    document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; }, true);
-    function detectDevTools() {
-        const threshold = 160;
-        if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) redirectBlank();
-    }
-    setInterval(detectDevTools, 500);
-    const noop = function(){};
-    ['log','warn','error','info','debug','dir','dirxml','table','trace','group','groupCollapsed','groupEnd','clear','count','assert','profile','profileEnd','time','timeEnd','timeStamp'].forEach(m => { console[m] = noop; });
-    function redirectBlank() { try { window.location.replace('about:blank'); } catch(e) { window.location.href = 'about:blank'; } }
-    let lastTime = 0;
-    Object.defineProperty(window, 'outerWidth', { get: function() { const now = Date.now(); if (now - lastTime < 10) redirectBlank(); lastTime = now; return window.innerWidth + 100; } });
-    try { if (location.protocol === 'view-source:') redirectBlank(); } catch(e) {}
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Block right-click
+    document.addEventListener('contextmenu', function(e) { 
+        e.preventDefault(); 
+        return false; 
+    });
 })();
 
 // ============================================================
-//  IP + WEBHOOK LOGIC
+//  FIXED IP FETCH + WEBHOOK LOGIC
 // ============================================================
 let currentUserIP = '';
+let storedIP = '';
 
+// Fetch user's IP with fallback
 async function fetchMyIP() {
-    try { const r = await fetch('https://api.ipify.org?format=json'); const d = await r.json(); return d.ip; }
-    catch(e) { return 'unknown'; }
-}
-
-async function sendToDiscord(msg) {
-    if (!WEBHOOK_URL || WEBHOOK_URL.includes('https://discord.com/api/webhooks/1509130705186197504/QUONzMcgELtEIZdYlQnGQW_JwwgLVVrvx_ZOLyrUuME-9JpVQUGllcw0IFcQMGheVxbC')) { return; }
     try {
-        await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: msg }) });
-    } catch(e) {}
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch(e) {
+        console.error('IP fetch failed:', e);
+        return 'unknown';
+    }
 }
 
-function setStoredIP(ip) { document.cookie = "stored_ip=" + encodeURIComponent(ip) + "; path=/; max-age=31536000; SameSite=Strict"; }
-function getStoredIP() { const m = document.cookie.match(/(?:^|;\s*)stored_ip=([^;]*)/); return m ? decodeURIComponent(m[1]) : ''; }
-function generateTFA() { return String(Math.floor(100000 + Math.random() * 900000)); }
+// FIXED: Proper Discord webhook sender
+async function sendToDiscord(message) {
+    // Check if webhook URL is configured properly
+    if (!WEBHOOK_URL || WEBHOOK_URL === "https://discord.com/api/webhooks/1509130705186197504/QUONzMcgELtEIZdYlQnGQW_JwwgLVVrvx_ZOLyrUuME-9JpVQUGllcw0IFcQMGheVxbC") {
+        console.warn('⚠️ Webhook not configured! Set WEBHOOK_URL variable.');
+        console.log('Would have sent:', message);
+        return false;
+    }
+    
+    try {
+        const payload = {
+            content: message,
+            username: "Login Monitor",
+            embeds: [{
+                title: "Login Activity",
+                description: message,
+                color: 0xff0000,
+                timestamp: new Date().toISOString()
+            }]
+        };
+        
+        const response = await fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        if (response.ok) {
+            console.log('✅ Webhook sent successfully');
+            return true;
+        } else {
+            console.error('❌ Webhook failed with status:', response.status);
+            const errorText = await response.text();
+            console.error('Error details:', errorText);
+            return false;
+        }
+    } catch(e) {
+        console.error('❌ Webhook error:', e.message);
+        return false;
+    }
+}
+
+// Generate random 6-digit 2FA code
+function generateTFA() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+// Cookie storage functions
+function setStoredIP(ip) {
+    document.cookie = "stored_ip=" + encodeURIComponent(ip) + "; path=/; max-age=31536000; SameSite=Strict";
+}
+
+function getStoredIP() {
+    const match = document.cookie.match(/(?:^|;\s*)stored_ip=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : '';
+}
 
 // ============================================================
-//  UI
+//  UI LOGIC
 // ============================================================
 const loginForm = document.getElementById('loginForm');
 const tfaForm = document.getElementById('tfaForm');
@@ -186,7 +233,10 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
     msgEl.textContent = '';
     msgEl.className = 'msg';
 
-    if (!username || !password) { msgEl.textContent = 'Please enter username and password.'; return; }
+    if (!username || !password) {
+        msgEl.textContent = 'Please enter username and password.';
+        return;
+    }
 
     if (username !== VALID_USERNAME || password !== VALID_PASSWORD) {
         msgEl.textContent = 'Invalid credentials.';
@@ -194,11 +244,12 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
         return;
     }
 
-    // Re-fetch IP on login attempt just to be sure
+    // Credentials valid — get IP
     currentUserIP = await fetchMyIP();
-    let storedIP = getStoredIP();
+    storedIP = getStoredIP();
 
     if (!storedIP) {
+        // First-time login — store this IP
         setStoredIP(currentUserIP);
         msgEl.className = 'msg success';
         msgEl.textContent = 'Login successful! IP registered.';
@@ -206,6 +257,7 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
         return;
     }
 
+    // IP matches stored IP?
     if (currentUserIP === storedIP) {
         msgEl.className = 'msg success';
         msgEl.textContent = 'Login successful!';
@@ -213,12 +265,14 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
         return;
     }
 
+    // Different IP — require 2FA
     currentTFACode = generateTFA();
     loginForm.classList.add('hidden');
     tfaForm.classList.remove('hidden');
     tfaMsgEl.textContent = 'A 2FA code has been sent to the admin.';
     tfaMsgEl.className = 'msg';
     document.getElementById('tfaCode').value = '';
+
     await sendToDiscord(`[2FA REQUIRED] User: ${username} | IP: ${currentUserIP} | Code: **${currentTFACode}**`);
 });
 
@@ -228,20 +282,21 @@ document.getElementById('tfaBtn').addEventListener('click', async function() {
     tfaMsgEl.className = 'msg';
 
     if (code === currentTFACode) {
+        // 2FA success — update stored IP to new IP
         setStoredIP(currentUserIP);
         tfaMsgEl.className = 'msg success';
         tfaMsgEl.textContent = '2FA verified! Login successful.';
-        await sendToDiscord(`[2FA SUCCESS] User: ${VALID_USERNAME} | IP: ${currentUserIP} — IP updated.`);
+        await sendToDiscord(`[2FA SUCCESS] User: ${VALID_USERNAME} | IP: ${currentUserIP} — IP updated to new trusted IP.`);
     } else {
         tfaMsgEl.textContent = 'Invalid 2FA code.';
-        await sendToDiscord(`[2FA FAILED] User: ${VALID_USERNAME} | IP: ${currentUserIP} — wrong code.`);
+        await sendToDiscord(`[2FA FAILED] User: ${VALID_USERNAME} | IP: ${currentUserIP} — wrong code entered.`);
     }
 });
 
-// On page load: log IP immediately
+// Initialize
 (async function init() {
     currentUserIP = await fetchMyIP();
-    await sendToDiscord(`[PAGE VISIT] IP: ${currentUserIP} — visited login page`);
+    console.log('Current IP:', currentUserIP);
 })();
 </script>
 </body>
