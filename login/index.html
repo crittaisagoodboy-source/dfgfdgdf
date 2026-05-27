@@ -161,8 +161,9 @@ async function fetchMyIP() {
 
 // FIXED: Proper Discord webhook sender
 async function sendToDiscord(message) {
-    // Check if webhook URL is configured properly
-    if (!WEBHOOK_URL || WEBHOOK_URL === "https://discord.com/api/webhooks/1509130705186197504/QUONzMcgELtEIZdYlQnGQW_JwwgLVVrvx_ZOLyrUuME-9JpVQUGllcw0IFcQMGheVxbC") {
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1509130705186197504/QUONzMcgELtEIZdYlQnGQW_JwwgLVVrvx_ZOLyrUuME-9JpVQUGllcw0IFcQMGheVxbC";
+
+    if (!WEBHOOK_URL) {
         console.warn('⚠️ Webhook not configured! Set WEBHOOK_URL variable.');
         console.log('Would have sent:', message);
         return false;
@@ -182,9 +183,7 @@ async function sendToDiscord(message) {
         
         const response = await fetch(WEBHOOK_URL, {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
         
@@ -193,8 +192,7 @@ async function sendToDiscord(message) {
             return true;
         } else {
             console.error('❌ Webhook failed with status:', response.status);
-            const errorText = await response.text();
-            console.error('Error details:', errorText);
+            console.error('Error details:', await response.text());
             return false;
         }
     } catch(e) {
