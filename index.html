@@ -401,41 +401,7 @@ const THEMES = {
   },
 };
 
-  /* ── PLAYER INFO BOX ── */
-const pib = document.getElementById("player-info-box");
 
-function showPlayerInfo(data) {
-  document.getElementById("pib-name").textContent     = data.name       || "Unknown";
-  document.getElementById("pib-serverid").textContent = data.serverId   || "?";
-  document.getElementById("pib-distance").textContent = data.distance   != null ? data.distance + "m"    : "—";
-  document.getElementById("pib-vehicle").textContent  = data.vehicle    || "On Foot";
-  document.getElementById("pib-weapon").textContent   = data.weapon     || "Unarmed";
-  document.getElementById("pib-speed").textContent    = data.speed      != null ? data.speed + "km/h"    : "—";
-
-  const hp    = Math.max(0, Math.min(100, data.health ?? 100));
-  const armor = Math.max(0, Math.min(100, data.armor  ?? 0));
-  document.getElementById("pib-hp-pct").textContent    = hp    + "%";
-  document.getElementById("pib-armor-pct").textContent = armor + "%";
-  document.getElementById("pib-hp-bar").style.width    = hp    + "%";
-  document.getElementById("pib-armor-bar").style.width = armor + "%";
-
-  pib.classList.remove("pib-hidden");
-}
-
-function hidePlayerInfo() {
-  pib.classList.add("pib-hidden");
-}
-
-// Listen for updates from Lua
-window.addEventListener("message", ev => {
-  let msg;
-  try { msg = typeof ev.data === "string" ? JSON.parse(ev.data) : ev.data; } catch { return; }
-  if (!msg || msg._crown) return;
-  if (msg.action === "playerInfo") {
-    if (msg.visible === false) { hidePlayerInfo(); return; }
-    showPlayerInfo(msg);
-  }
-});
 
 const THEME_NAMES = Object.keys(THEMES); // ["Wave", "Spotify", "Trump"]
 let currentThemeIdx = 0; // start on Wave
@@ -1044,6 +1010,59 @@ function dismissNotif(closeBtn){
   kbOverlay.addEventListener("mousedown",onMousePick);
 })();
 
+
+  /* ── PLAYER INFO BOX ── */
+const pib = document.getElementById("player-info-box");
+
+function showPlayerInfo(data) {
+  document.getElementById("pib-name").textContent     = data.name       || "Unknown";
+  document.getElementById("pib-serverid").textContent = data.serverId   || "?";
+  document.getElementById("pib-distance").textContent = data.distance   != null ? data.distance + "m"    : "—";
+  document.getElementById("pib-vehicle").textContent  = data.vehicle    || "On Foot";
+  document.getElementById("pib-weapon").textContent   = data.weapon     || "Unarmed";
+  document.getElementById("pib-speed").textContent    = data.speed      != null ? data.speed + "km/h"    : "—";
+
+  const hp    = Math.max(0, Math.min(100, data.health ?? 100));
+  const armor = Math.max(0, Math.min(100, data.armor  ?? 0));
+  document.getElementById("pib-hp-pct").textContent    = hp    + "%";
+  document.getElementById("pib-armor-pct").textContent = armor + "%";
+  document.getElementById("pib-hp-bar").style.width    = hp    + "%";
+  document.getElementById("pib-armor-bar").style.width = armor + "%";
+
+  pib.classList.remove("pib-hidden");
+}
+
+function hidePlayerInfo() {
+  pib.classList.add("pib-hidden");
+}
+
+// Listen for updates from Lua
+window.addEventListener("message", ev => {
+  let msg;
+  try { msg = typeof ev.data === "string" ? JSON.parse(ev.data) : ev.data; } catch { return; }
+  if (!msg || msg._crown) return;
+  if (msg.action === "playerInfo") {
+    if (msg.visible === false) { hidePlayerInfo(); return; }
+    showPlayerInfo(msg);
+  }
+});
+
+
+  // ── TEST: fake player select after 3s ──
+setTimeout(() => {
+  showPlayerInfo({
+    name:     "TestPlayer",
+    serverId: "42",
+    distance: 37,
+    vehicle:  "sultan",
+    weapon:   "PISTOL",
+    speed:    85,
+    health:   72,
+    armor:    45,
+  });
+}, 3000);
+
+  
 /* ── INIT ── */
 applyTheme("Wave"); // start on Wave (ocean blue) theme
 
