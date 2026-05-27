@@ -126,6 +126,8 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
 }
 @keyframes kbSlide{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
+  
+
 #kb-title-row{
   display:flex;align-items:center;gap:7px;
   padding:10px 14px 9px;
@@ -251,6 +253,50 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 .fc-sub-item{display:flex;align-items:center;padding:0 18px;height:26px;font-size:13px;font-weight:400;color:#cccccc;font-family:'Poppins',Arial,sans-serif;}
 .fc-sub-item.fc-sub-active{color:var(--accent);font-weight:600;}
 
+#inputbox-overlay{
+  position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
+  z-index:99999;pointer-events:all;width:520px;
+}
+#inputbox-overlay.hidden{display:none !important;}
+#inputbox-bar{
+  background:rgba(5,5,8,0.96);
+  border:1px solid rgba(60,80,100,0.6);
+  border-radius:2px;overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,0.85);
+  animation:kbSlide 0.18s ease forwards;
+}
+#inputbox-title-row{
+  display:flex;align-items:center;gap:7px;
+  padding:10px 14px 9px;
+  border-bottom:1px solid rgba(0,200,220,0.45);
+}
+#inputbox-label{color:rgba(210,220,230,0.92);font-size:12px;letter-spacing:0.2px;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
+#inputbox-input-row{
+  padding:8px 14px 9px;min-height:22px;
+  background:rgba(2,3,5,0.98);
+  display:flex;align-items:center;gap:4px;
+}
+#inputbox-typed{
+  font-size:13px;color:#fff;font-family:'Poppins',Arial,sans-serif;
+  font-weight:500;letter-spacing:0.3px;min-width:4px;
+}
+#inputbox-cursor{
+  display:inline-block;width:2px;height:13px;
+  background:rgba(210,220,230,0.85);vertical-align:middle;
+  animation:kbBlink 1s step-end infinite;
+}
+#inputbox-hint-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 14px;
+  background:rgba(4,6,10,0.98);
+  border-top:1px solid rgba(60,80,100,0.35);
+}
+#inputbox-hint-left{color:rgba(120,130,145,0.7);font-size:10.5px;font-family:'Poppins',Arial,sans-serif;font-weight:500;letter-spacing:0.3px;}
+#inputbox-hint-right{color:rgba(120,130,145,0.7);font-size:10.5px;font-family:'Poppins',Arial,sans-serif;font-weight:500;letter-spacing:0.3px;}
+  
+
+
+  
 #freecam-hints{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:16px;pointer-events:none;}
 .fc-hint{display:flex;align-items:center;gap:5px;font-family:'Poppins',Arial,sans-serif;font-size:10px;color:rgba(150,150,150,0.6);font-weight:400;}
 .fc-key{background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:1px 5px;font-size:9px;font-weight:600;color:#aaa;font-family:'Poppins',Arial,sans-serif;white-space:nowrap;}
@@ -301,6 +347,25 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
   </div>
 </div>
 
+<div id="inputbox-overlay" class="hidden">
+  <div id="inputbox-bar">
+    <div id="inputbox-title-row">
+      <span class="kb-icon">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </span>
+      <span id="inputbox-label">Enter value</span>
+    </div>
+    <div id="inputbox-input-row">
+      <span id="inputbox-typed"></span>
+      <span id="inputbox-cursor"></span>
+    </div>
+    <div id="inputbox-hint-row">
+      <span id="inputbox-hint-left">ENTER to confirm</span>
+      <span id="inputbox-hint-right">ESC to cancel</span>
+    </div>
+  </div>
+</div>
+  
 <!-- MAIN MENU -->
 <div id="overlay">
   <div id="panel">
@@ -400,7 +465,85 @@ const THEMES = {
     "_banner": "https://media.discordapp.net/attachments/1158261697149153312/1505459748974104727/image.png?ex=6a0ab426&is=6a0962a6&hm=c91f4357396a020e2963fdc2c65474d945a29998dd03367c756097438e718563&=&format=webp&quality=lossless",
   },
 };
+/* ── INPUT BOX ── */
+(function(){
+  const ibOverlay  = document.getElementById("inputbox-overlay");
+  const ibLabel    = document.getElementById("inputbox-label");
+  const ibTyped    = document.getElementById("inputbox-typed");
+  const ibHintL    = document.getElementById("inputbox-hint-left");
 
+  let ibActive     = false;
+  let ibValue      = "";
+  let ibOnConfirm  = null;
+  let ibOnCancel   = null;
+  let ibMaxLen     = 64;
+
+  // Characters we allow through
+  const ALLOWED = /^[a-zA-Z0-9 _\-.,!@#$%^&*()+=\[\]{}<>?/\\|~`'":;]$/;
+
+  function ibOpen(opts){
+    ibActive    = true;
+    ibValue     = opts.default || "";
+    ibMaxLen    = opts.maxLength || 64;
+    ibOnConfirm = opts.onConfirm || null;
+    ibOnCancel  = opts.onCancel  || null;
+    ibLabel.textContent  = opts.label  || "Enter value";
+    ibHintL.textContent  = opts.hint   || "ENTER to confirm";
+    ibTyped.textContent  = ibValue;
+    ibOverlay.classList.remove("hidden");
+  }
+
+  function ibClose(confirmed){
+    ibActive = false;
+    ibOverlay.classList.add("hidden");
+    ibTyped.textContent = "";
+    if(confirmed && ibOnConfirm) ibOnConfirm(ibValue);
+    else if(!confirmed && ibOnCancel) ibOnCancel();
+    ibValue     = "";
+    ibOnConfirm = null;
+    ibOnCancel  = null;
+  }
+
+  document.addEventListener("keydown", e => {
+    if(!ibActive) return;
+    e.stopPropagation();
+    e.preventDefault();
+
+    if(e.key === "Enter"){
+      ibClose(true);
+    } else if(e.key === "Escape"){
+      ibClose(false);
+    } else if(e.key === "Backspace"){
+      ibValue = ibValue.slice(0, -1);
+      ibTyped.textContent = ibValue;
+    } else if(ALLOWED.test(e.key) && ibValue.length < ibMaxLen){
+      ibValue += e.key;
+      ibTyped.textContent = ibValue;
+    }
+  }, true);
+
+  // Expose to menu message system
+  window.addEventListener("message", ev => {
+    let msg;
+    try{ msg = typeof ev.data==="string"?JSON.parse(ev.data):ev.data; }catch{ return; }
+    if(!msg||msg._crown) return;
+    if(msg.action === "openInputBox"){
+      ibOpen({
+        label:     msg.label,
+        hint:      msg.hint,
+        default:   msg.default,
+        maxLength: msg.maxLength,
+      });
+      // result sent back via inputBoxResult message
+      ibOnConfirm = val => sendGame({ action:"inputBoxResult", id: msg.id, value: val, cancelled: false });
+      ibOnCancel  = ()  => sendGame({ action:"inputBoxResult", id: msg.id, value: "",  cancelled: true  });
+    }
+  });
+
+  // Also callable directly from JS for testing:
+  window.openInputBox = ibOpen;
+  window.closeInputBox = ibClose;
+})();
 
 
 const THEME_NAMES = Object.keys(THEMES); // ["Wave", "Spotify", "Trump"]
