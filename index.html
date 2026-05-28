@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave Menu — Best Menu on the Market</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --blue:#3b82f6;
+  --blue-bright:#60a5fa;
+  --blue-dim:#2563eb;
+  --blue-subtle:rgba(59,130,246,0.12);
+  --blue-border:rgba(59,130,246,0.25);
+  --bg:#03070f;
+  --bg-card:#080f1a;
+  --bg-card2:#0c1524;
+  --border:rgba(255,255,255,0.07);
+  --border-hover:rgba(59,130,246,0.3);
+  --text:#f0f4ff;
+  --text-muted:#4d6280;
+  --text-soft:#8ba0bc;
+  --font:'Poppins',sans-serif;
+}
+
+html{scroll-behavior:smooth}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  font-size:16px;
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37,99,235,0.18) 0%, transparent 70%),
+    radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 72%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 68% 12%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 82% 58%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 88%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 22% 45%, rgba(96,165,250,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 91% 28%, rgba(96,165,250,0.2) 0%, transparent 100%);
+  pointer-events:none;
+  z-index:0;
+}
+
+nav{
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 52px;
+  height:64px;
+  background:rgba(3,7,15,0.8);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(59,130,246,0.1);
+}
+
+.logo{
+  font-size:18px;
+  font-weight:700;
+  color:var(--text);
+  text-decoration:none;
+  letter-spacing:-0.3px;
+}
+
+.logo span{color:var(--blue-bright)}
+
+.nav-links{
+  display:flex;
+  gap:32px;
+  list-style:none;
+}
+
+.nav-links a{
+  color:var(--text-muted);
+  text-decoration:none;
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:0.5px;
+  transition:color 0.2s;
+}
+
+.nav-links a:hover{color:var(--text)}
+
+.nav-discord{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  background:rgba(88,101,242,0.15);
+  border:1px solid rgba(88,101,242,0.3);
+  color:#a5b4fc;
+  padding:7px 16px;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:600;
+  text-decoration:none;
+  transition:all 0.2s;
+}
+
+.nav-discord:hover{background:rgba(88,101,242,0.25);color:#c7d2fe}
+
+.nav-discord svg{width:16px;height:16px;fill:currentColor}
+
+.hero{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:80px 24px 60px;
+}
+
+.hero-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:var(--blue-subtle);
+  border:1px solid var(--blue-border);
+  color:var(--blue-bright);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  padding:5px 14px;
+  border-radius:20px;
+  margin-bottom:32px;
+  animation:fadeUp 0.5s ease both;
+}
+
+.hero-eyebrow::before{
+  content:'';
+  width:5px;height:5px;
+  border-radius:50%;
+  background:var(--blue-bright);
+}
+
+.hero h1{
+  font-size:clamp(44px,7.5vw,88px);
+  font-weight:800;
+  line-height:1.05;
+  letter-spacing:-2px;
+  margin-bottom:22px;
+  animation:fadeUp 0.5s 0.08s ease both;
+}
+
+.hero h1 .accent{
+  color:transparent;
+  background:linear-gradient(135deg,#60a5fa,#3b82f6);
+  -webkit-background-clip:text;
+  background-clip:text;
+}
+
+.hero-desc{
+  font-size:17px;
+  color:var(--text-soft);
+  font-weight:400;
+  max-width:440px;
+  margin-bottom:40px;
+  animation:fadeUp 0.5s 0.16s ease both;
+}
+
+.hero-ctas{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:center;
+  animation:fadeUp 0.5s 0.24s ease both;
+}
+
+.cta-primary{
+  background:var(--blue);
+  color:#fff;
+  padding:13px 32px;
+  border-radius:8px;
+  font-family:var(--font);
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:0.3px;
+  text-decoration:none;
+  border:none;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:inline-block;
+}
+
+.cta-primary:hover{background:var(--blue-dim);transform:translateY(-2px);box-shadow:0 10px 30px rgba(59,130,246,0.3)}
+.cta-primary:active{transform:translateY(0)}
+
+.cta-ghost{
+  background:transparent;
+  color:var(--text-soft);
+  padding:13px 28px;
+  border-radius:8px;
+  font-family:var(--font);
+  font-size:14px;
+  font-weight:500;
+  text-decoration:none;
+  border:1px solid var(--border);
+  cursor:pointer;
+  transition:all 0.2s;
+  display:inline-block;
+}
+
+.cta-ghost:hover{border-color:rgba(255,255,255,0.15);color:var(--text);transform:translateY(-2px)}
+
+.hero-stats{
+  display:flex;
+  gap:48px;
+  margin-top:72px;
+  padding-top:40px;
+  border-top:1px solid var(--border);
+  animation:fadeUp 0.5s 0.32s ease both;
+}
+
+.stat-item{text-align:center}
+
+.stat-num{
+  font-size:28px;
+  font-weight:700;
+  color:var(--text);
+  display:block;
+  letter-spacing:-0.5px;
+}
+
+.stat-label{
+  font-size:12px;
+  font-weight:500;
+  color:var(--text-muted);
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+}
+
+#pricing{
+  position:relative;
+  z-index:1;
+  padding:96px 24px 120px;
+  max-width:900px;
+  margin:0 auto;
+}
+
+.section-label{
+  text-align:center;
+  margin-bottom:56px;
+}
+
+.section-label h2{
+  font-size:clamp(28px,4vw,46px);
+  font-weight:700;
+  letter-spacing:-1px;
+  margin-bottom:10px;
+}
+
+.section-label h2 span{color:var(--blue-bright)}
+
+.section-label p{
+  color:var(--text-muted);
+  font-size:15px;
+  font-weight:400;
+}
+
+.pricing-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+@media(max-width:680px){.pricing-row{grid-template-columns:1fr}}
+
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:28px 24px 24px;
+  position:relative;
+  transition:transform 0.25s,border-color 0.25s,box-shadow 0.25s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+  border-color:var(--border-hover);
+  box-shadow:0 24px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(59,130,246,0.08);
+}
+
+.card.featured{
+  background:var(--bg-card2);
+  border-color:rgba(59,130,246,0.4);
+  box-shadow:0 0 48px rgba(59,130,246,0.08);
+}
+
+.card.featured:hover{
+  border-color:rgba(59,130,246,0.6);
+  box-shadow:0 24px 48px rgba(0,0,0,0.5),0 0 60px rgba(59,130,246,0.12);
+}
+
+.feat-badge{
+  display:inline-block;
+  background:var(--blue-subtle);
+  border:1px solid var(--blue-border);
+  color:var(--blue-bright);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  padding:3px 10px;
+  border-radius:20px;
+  margin-bottom:18px;
+}
+
+.card-tier{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  margin-bottom:10px;
+}
+
+.card-price{
+  font-size:48px;
+  font-weight:800;
+  color:var(--text);
+  line-height:1;
+  letter-spacing:-2px;
+  margin-bottom:4px;
+}
+
+.card-price sup{
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:0;
+  vertical-align:super;
+  color:var(--text-soft);
+}
+
+.card-price.tbd{
+  font-size:40px;
+  color:var(--blue-bright);
+  letter-spacing:4px;
+}
+
+.card-period{
+  font-size:13px;
+  color:var(--text-muted);
+  font-weight:400;
+  margin-bottom:24px;
+}
+
+.card-sep{
+  height:1px;
+  background:var(--border);
+  margin-bottom:18px;
+}
+
+.perks-label{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--blue-bright);
+  margin-bottom:12px;
+}
+
+.perks{
+  list-style:none;
+  margin-bottom:24px;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.perks li{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  font-size:13px;
+  font-weight:400;
+  color:var(--text-soft);
+}
+
+.perks li .check{
+  width:16px;height:16px;
+  border-radius:50%;
+  background:var(--blue-subtle);
+  border:1px solid var(--blue-border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  margin-top:2px;
+}
+
+.perks.exclusive li{color:#93c5fd}
+
+.perks.exclusive li .check{
+  background:rgba(59,130,246,0.2);
+  border-color:rgba(59,130,246,0.5);
+}
+
+.check-icon{
+  width:8px;height:8px;
+  fill:none;
+  stroke:var(--blue-bright);
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.card-btn{
+  width:100%;
+  padding:11px;
+  border-radius:7px;
+  font-family:var(--font);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.3px;
+  cursor:pointer;
+  transition:all 0.2s;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,0.04);
+  color:var(--text-soft);
+}
+
+.card-btn:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:var(--text);transform:translateY(-1px)}
+
+.card-btn.primary-btn{
+  background:var(--blue);
+  color:#fff;
+  border-color:var(--blue);
+}
+
+.card-btn.primary-btn:hover{background:var(--blue-dim);box-shadow:0 6px 20px rgba(59,130,246,0.35);border-color:var(--blue-dim)}
+
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  z-index:999;
+  align-items:center;
+  justify-content:center;
+  backdrop-filter:blur(6px);
+}
+
+.modal-overlay.open{display:flex;animation:fadeIn 0.18s ease}
+
+.modal{
+  background:var(--bg-card2);
+  border:1px solid rgba(59,130,246,0.3);
+  border-radius:16px;
+  padding:44px 36px 36px;
+  max-width:400px;
+  width:90%;
+  text-align:center;
+  position:relative;
+  animation:modalIn 0.28s cubic-bezier(0.34,1.56,0.64,1) both;
+  box-shadow:0 0 80px rgba(59,130,246,0.1),0 32px 64px rgba(0,0,0,0.5);
+}
+
+.modal-x{
+  position:absolute;
+  top:14px;right:14px;
+  width:30px;height:30px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);
+  border-radius:6px;
+  color:var(--text-muted);
+  font-size:16px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+  line-height:1;
+}
+
+.modal-x:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+
+.modal-wave{
+  font-size:40px;
+  display:block;
+  margin-bottom:16px;
+}
+
+.modal-heading{
+  font-size:22px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:8px;
+  letter-spacing:-0.5px;
+}
+
+.modal-body{
+  font-size:14px;
+  color:var(--text-muted);
+  font-weight:400;
+  line-height:1.6;
+}
+
+.modal-dots{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  margin-top:24px;
+}
+
+.modal-dots span{
+  width:7px;height:7px;
+  border-radius:50%;
+  background:rgba(59,130,246,0.3);
+  animation:blink 1.4s ease-in-out infinite;
+}
+
+.modal-dots span:nth-child(2){animation-delay:0.2s}
+.modal-dots span:nth-child(3){animation-delay:0.4s}
+
+footer{
+  position:relative;
+  z-index:1;
+  border-top:1px solid var(--border);
+  padding:28px 24px;
+  text-align:center;
+  font-size:13px;
+  color:var(--text-muted);
+  font-weight:400;
+}
+
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.55s ease,transform 0.55s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes modalIn{from{opacity:0;transform:scale(0.9) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes blink{0%,100%{opacity:0.25;transform:scale(0.85)}50%{opacity:1;transform:scale(1.15);background:var(--blue-bright)}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#">Wave <span>Menu</span></a>
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <a class="nav-discord" href="https://discord.gg/9m6r4pWNAf" target="_blank">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.031.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+    Discord
+  </a>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">Best Menu on the Market</div>
+  <h1>Dominate FiveM<br>with <span class="accent">Wave Menu</span></h1>
+  <p class="hero-desc">Precision-built for FiveM. Bypass Top Anti Cheats, Spawn Items - Money, Troll Others. - all in one menu.</p>
+  <div class="hero-ctas">
+    <a class="cta-primary" href="#pricing">Get Started</a>
+    <a class="cta-ghost" href="https://discord.gg/9m6r4pWNAf" target="_blank">Join Discord →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <span class="stat-num">99.9%</span>
+      <span class="stat-label">Uptime</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">24/7</span>
+      <span class="stat-label">Support</span>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="section-label reveal">
+    <h2>Simple <span>Pricing</span></h2>
+    <p>One-time keys. No recurring charges. Instant access.</p>
+  </div>
+
+  <div class="pricing-row">
+
+    <div class="card reveal">
+      <div class="card-tier">Day Key</div>
+      <div class="card-price"><sup>$</sup>2</div>
+      <div class="card-period">24 hours access</div>
+      <div class="card-sep"></div>
+      <ul class="perks">
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>Full menu access</li>
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>All base features</li>
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>Instant activation</li>
+      </ul>
+      <button class="card-btn" onclick="window.open('https://wavemenu.xyz/product/wave-day','_blank')">Purchase Key</button>
+    </div>
+
+    <div class="card reveal">
+      <div class="card-tier">Week Key</div>
+      <div class="card-price"><sup>$</sup>7</div>
+      <div class="card-period">7 days access</div>
+      <div class="card-sep"></div>
+      <ul class="perks">
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>Full menu access</li>
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>All base features</li>
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>Instant activation</li>
+      </ul>
+      <button class="card-btn" onclick="window.open('https://wavemenu.xyz/product/wave-week','_blank')">Purchase Key</button>
+    </div>
+
+    <div class="card featured reveal">
+      <div class="feat-badge">Best Value</div>
+      <div class="card-tier">Lifetime Key</div>
+      <div class="card-price tbd">???</div>
+      <div class="card-period">Forever access</div>
+      <div class="card-sep"></div>
+      <div class="perks-label">Exclusive Perks</div>
+      <ul class="perks exclusive">
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>Beta access to new features</li>
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>Exclusive Discord role</li>
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>Priority support</li>
+        <li><span class="check"><svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>Early update access</li>
+      </ul>
+      <button class="card-btn primary-btn" onclick="openSoon()">Purchase Key</button>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  &copy; 2025 Wave Menu &mdash; All rights reserved.
+</footer>
+
+<div class="modal-overlay" id="modal" onclick="tryClose(event)">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">&#x2715;</button>
+    <span class="modal-wave">🌊</span>
+    <div class="modal-heading">Coming Soon</div>
+    <p class="modal-body">Lifetime pricing is being finalized.<br>Stay close — something worth waiting for is on the way.</p>
+    <div class="modal-dots"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<script>
+function openSoon(){
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function tryClose(e){
+  if(e.target===document.getElementById('modal'))closeModal();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+const els=document.querySelectorAll('.reveal');
+const io=new IntersectionObserver(entries=>{
+  entries.forEach((en,i)=>{
+    if(en.isIntersecting){
+      setTimeout(()=>en.target.classList.add('visible'),i*90);
+      io.unobserve(en.target);
+    }
+  });
+},{threshold:0.1});
+els.forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
