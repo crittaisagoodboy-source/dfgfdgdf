@@ -52,6 +52,68 @@ html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;backgrou
 #overlay.visible #panel{transform:translateX(0);}
 
 
+#inputbox-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  pointer-events: all;
+  font-family: 'Geist', 'Poppins', sans-serif;
+}
+#inputbox-overlay.hidden { display: none !important; }
+
+.input-mainbg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.input-main {
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 0.5vh;
+  overflow: hidden;
+  min-width: 33.5vh;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.input-bg {
+  background: rgba(10, 10, 10, 0.95);
+  padding: 1.2vh 1.2vh 1.4vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vh;
+}
+.input-title {
+  color: #ffffff;
+  font-size: 1.1vh;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.input-content {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.3vh;
+  padding: 0.6vh 0.8vh;
+}
+.input-content input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 1.3vh;
+  font-family: 'Geist', 'Poppins', sans-serif;
+  font-weight: 500;
+  width: 100%;
+  caret-color: rgb(200, 0, 0);
+}
+.input-content input::placeholder {
+  color: rgba(255,255,255,0.25);
+  font-weight: 400;
+}
+
+  
 /* ── PLAYER INFO BOX ── */
 #player-info-box{
   position:fixed;
@@ -319,20 +381,14 @@ input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;
 </div>
 
 <div id="inputbox-overlay" class="hidden">
-  <div id="inputbox-bar">
-    <div id="inputbox-title-row">
-      <span class="kb-icon">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </span>
-      <span id="inputbox-label">Enter value</span>
-    </div>
-    <div id="inputbox-input-row">
-      <span id="inputbox-typed"></span>
-      <span id="inputbox-cursor"></span>
-    </div>
-    <div id="inputbox-hint-row">
-      <span id="inputbox-hint-left">ENTER to confirm</span>
-      <span id="inputbox-hint-right">BACKSPACE to delete  |  ESC to cancel</span>
+  <div class="input-mainbg">
+    <div class="input-main">
+      <div class="input-bg">
+        <div class="input-title" id="inputbox-label">Input</div>
+        <div class="input-content">
+          <input type="text" id="inputbox-field" placeholder="Enter value..." autocomplete="off" spellcheck="false" />
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -436,84 +492,32 @@ const THEMES = {
     "_banner": "https://media.discordapp.net/attachments/1158261697149153312/1505459748974104727/image.png?ex=6a0ab426&is=6a0962a6&hm=c91f4357396a020e2963fdc2c65474d945a29998dd03367c756097438e718563&=&format=webp&quality=lossless",
   },
 };
-/* ── INPUT BOX ── */
+/* ── INPUT BOX (Risk style) ── */
 (function(){
-  const ibOverlay  = document.getElementById("inputbox-overlay");
-  const ibLabel    = document.getElementById("inputbox-label");
-  const ibTyped    = document.getElementById("inputbox-typed");
-  const ibHintL    = document.getElementById("inputbox-hint-left");
+  const ibOverlay = document.getElementById("inputbox-overlay");
+  const ibLabel   = document.getElementById("inputbox-label");
+  const ibField   = document.getElementById("inputbox-field");
 
-  let ibActive     = false;
-  let ibValue      = "";
-  let ibOnConfirm  = null;
-  let ibOnCancel   = null;
-  let ibMaxLen     = 64;
-
-  // Characters we allow through
-  const ALLOWED = /^[a-zA-Z0-9 _\-.,!@#$%^&*()+=\[\]{}<>?/\\|~`'":;]$/;
-
-  function ibOpen(opts){
-    ibActive    = true;
-    ibValue     = opts.default || "";
-    ibMaxLen    = opts.maxLength || 64;
-    ibOnConfirm = opts.onConfirm || null;
-    ibOnCancel  = opts.onCancel  || null;
-    ibLabel.textContent  = opts.label  || "Enter value";
-    ibHintL.textContent  = opts.hint   || "ENTER to confirm";
-    ibTyped.textContent  = ibValue;
-    ibOverlay.classList.remove("hidden");
-  }
-
-  function ibClose(confirmed){
-    ibActive = false;
-    ibOverlay.classList.add("hidden");
-    ibTyped.textContent = "";
-    if(confirmed && ibOnConfirm) ibOnConfirm(ibValue);
-    else if(!confirmed && ibOnCancel) ibOnCancel();
-    ibValue     = "";
-    ibOnConfirm = null;
-    ibOnCancel  = null;
-  }
-
-  document.addEventListener("keydown", e => {
-    if(!ibActive) return;
-    e.stopPropagation();
-    e.preventDefault();
-
-    if(e.key === "Enter"){
-      ibClose(true);
-    } else if(e.key === "Escape"){
-      ibClose(false);
-    } else if(e.key === "Backspace"){
-      ibValue = ibValue.slice(0, -1);
-      ibTyped.textContent = ibValue;
-    } else if(ALLOWED.test(e.key) && ibValue.length < ibMaxLen){
-      ibValue += e.key;
-      ibTyped.textContent = ibValue;
-    }
-  }, true);
-
-  // Expose to menu message system
   window.addEventListener("message", ev => {
     let msg;
-    try{ msg = typeof ev.data==="string"?JSON.parse(ev.data):ev.data; }catch{ return; }
-    if(!msg||msg._crown) return;
-    if(msg.action === "openInputBox"){
-      ibOpen({
-        label:     msg.label,
-        hint:      msg.hint,
-        default:   msg.default,
-        maxLength: msg.maxLength,
-      });
-      // result sent back via inputBoxResult message
-      ibOnConfirm = val => sendGame({ action:"inputBoxResult", id: msg.id, value: val, cancelled: false });
-      ibOnCancel  = ()  => sendGame({ action:"inputBoxResult", id: msg.id, value: "",  cancelled: true  });
+    try { msg = typeof ev.data === "string" ? JSON.parse(ev.data) : ev.data; }
+    catch { return; }
+    if (!msg || msg._crown) return;
+
+    if (msg.action === "inputbox_open") {
+      ibLabel.textContent   = msg.label || "Input";
+      ibField.placeholder   = msg.placeholder || "Enter value...";
+      ibField.value         = msg.value || "";
+      ibOverlay.classList.remove("hidden");
+
+    } else if (msg.action === "inputbox_update") {
+      ibField.value = msg.value || "";
+
+    } else if (msg.action === "inputbox_close") {
+      ibOverlay.classList.add("hidden");
+      ibField.value = "";
     }
   });
-
-  // Also callable directly from JS for testing:
-  window.openInputBox = ibOpen;
-  window.closeInputBox = ibClose;
 })();
 
 
