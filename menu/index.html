@@ -701,14 +701,16 @@ function renderFreecam() {
   }).join("");
 }
 
-function showFreecam(weaponIndex, vehicleIndex)
-  freecamVisible    = true
-  CurrentWeaponIndex  = math.max(1, math.min((weaponIndex  or 1), #FreecamWeaponList))
-  CurrentVehicleIndex = math.max(1, math.min((vehicleIndex or 1), #FreecamVehicleList))
-  freecamHoveredIdx = 0
-  fcOverlay.classList.add("visible")
-  renderFreecam()
-end
+
+function showFreecam(weaponIndex, vehicleIndex) {
+  freecamVisible    = true;
+  freecamWeaponIdx  = Math.max(0, (weaponIndex  || 1) - 1);
+  freecamVehicleIdx = Math.max(0, (vehicleIndex || 1) - 1);
+  freecamHoveredIdx = 0;
+  fcOverlay.classList.add("visible");
+  renderFreecam();
+}
+  
 function hideFreecam() {
   freecamVisible = false;
   fcOverlay.classList.remove("visible");
