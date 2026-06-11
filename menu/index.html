@@ -720,13 +720,7 @@ fcOverlay.addEventListener("click", e => {
   sendGame({ action: "freecamActivate", index: freecamHoveredIdx + 1, option: opt ? opt.label : "", subIndex: getSubIdx() + 1 });
 });
 
-  fcOptList.addEventListener("click", e => {
-  const row = e.target.closest(".fc-option");
-  if (!row) return;
-  const idx = parseInt(row.dataset.fcIdx);
-  if (!isNaN(idx)) { freecamHoveredIdx = idx; renderFreecam(); sendGame({ action: "freecamOptionChange", index: idx + 1 }); }
-  e.stopPropagation();
-});
+
 
 
 /* ── MENU STATE ── */
