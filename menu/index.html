@@ -689,7 +689,15 @@ function renderFreecam() {
   const textList = document.getElementById("freecam-text-list");
   textList.innerHTML = FreecamOptions.map((opt, i) => {
     const hov = i === freecamHoveredIdx;
-    return `<div class="fc-text-item${hov ? " fc-text-hover" : ""}">${opt.label}</div>`;
+    let display = opt.label;
+    
+    if (opt.sub) {
+      let subList = opt.sub === "weapon" ? FreecamWeaponList : FreecamVehicleList;
+      let subIdx = opt.sub === "weapon" ? freecamWeaponIdx : freecamVehicleIdx;
+      display = opt.label + ` < ${subList[subIdx]} >`;
+    }
+    
+    return `<div class="fc-text-item${hov ? " fc-text-hover" : ""}">${display}</div>`;
   }).join("");
 }
 
@@ -915,16 +923,30 @@ function nudgeScrollable(dir){
 }
 
 document.addEventListener("keydown", e => {
-  if(freecamVisible){
-    if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
-      e.preventDefault();
-      const subList=getSubList();
-      if(subList){
-        const dir=e.key==="ArrowRight"?1:-1;
-        setSubIdx((getSubIdx()+dir+subList.length)%subList.length);
-        renderFreecam();
-        sendGame({action:"freecamSubChange",index:getSubIdx()+1});
+  if (!freecamVisible) return;
+  
+  const opt = FreecamOptions[freecamHoveredIdx];
+  
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+    e.preventDefault();
+    if (opt && opt.sub) {
+      let subList = opt.sub === "weapon" ? FreecamWeaponList : FreecamVehicleList;
+      let currentIdx = opt.sub === "weapon" ? freecamWeaponIdx : freecamVehicleIdx;
+      
+      if (e.key === "ArrowRight") {
+        currentIdx = (currentIdx + 1) % subList.length;
+      } else {
+        currentIdx = (currentIdx - 1 + subList.length) % subList.length;
       }
+      
+      if (opt.sub === "weapon") {
+        freecamWeaponIdx = currentIdx;
+      } else {
+        freecamVehicleIdx = currentIdx;
+      }
+      
+      renderFreecam();
+      sendGame({ action: "freecamSubChange", subType: opt.sub, index: currentIdx + 1 });
     }
     return;
   }
