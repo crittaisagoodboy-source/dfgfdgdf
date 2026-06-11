@@ -662,7 +662,27 @@ let freecamHoveredIdx = 0;
 let freecamWeaponIdx  = 0;
 let freecamVehicleIdx = 0;
 
+const fcOverlay  = document.getElementById("freecam-overlay");
+const fcOptList  = document.getElementById("freecam-options");
+const fcSubPanel = document.getElementById("freecam-sub-panel");
+const fcSubList  = document.getElementById("freecam-sub-list");
 
+function getSubList() {
+  const opt = FreecamOptions[freecamHoveredIdx];
+  if (!opt || !opt.sub) return null;
+  return opt.sub === "weapon" ? FreecamWeaponList : FreecamVehicleList;
+}
+function getSubIdx() {
+  const opt = FreecamOptions[freecamHoveredIdx];
+  if (!opt || !opt.sub) return 0;
+  return opt.sub === "weapon" ? freecamWeaponIdx : freecamVehicleIdx;
+}
+function setSubIdx(i) {
+  const opt = FreecamOptions[freecamHoveredIdx];
+  if (!opt || !opt.sub) return;
+  if (opt.sub === "weapon") freecamWeaponIdx = i;
+  else freecamVehicleIdx = i;
+}
 
 
 function renderFreecam() {
@@ -698,6 +718,14 @@ fcOverlay.addEventListener("click", e => {
   if (!freecamVisible) return;
   const opt = FreecamOptions[freecamHoveredIdx];
   sendGame({ action: "freecamActivate", index: freecamHoveredIdx + 1, option: opt ? opt.label : "", subIndex: getSubIdx() + 1 });
+});
+
+  fcOptList.addEventListener("click", e => {
+  const row = e.target.closest(".fc-option");
+  if (!row) return;
+  const idx = parseInt(row.dataset.fcIdx);
+  if (!isNaN(idx)) { freecamHoveredIdx = idx; renderFreecam(); sendGame({ action: "freecamOptionChange", index: idx + 1 }); }
+  e.stopPropagation();
 });
 
 
