@@ -709,7 +709,7 @@ function hideFreecam() {
 document.addEventListener("wheel", e => {
   if (!freecamVisible) return;
   e.preventDefault();
-  freecamHoveredIdx = (freecamHoveredIdx + (e.deltaY > 0 ? 1 : -1) + FreecamOptions.length) % FreecamOptions.length;
+  freecamHoveredIdx = (freecamHoveredIdx + (e.deltaY < 0 ? 1 : -1) + FreecamOptions.length) % FreecamOptions.length;
   renderFreecam();
   sendGame({ action: "freecamOptionChange", index: freecamHoveredIdx + 1 });
 }, { passive: false });
