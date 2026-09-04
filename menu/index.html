@@ -1,1233 +1,638 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Wave Menu</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{font-family:'Poppins',Arial,sans-serif;width:100%;height:100%;background:transparent;overflow:hidden;user-select:none;}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wave Menu</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      user-select: none;
+      background: transparent;
+      color: #eef5ff;
+      font-family: Poppins, "Segoe UI", Arial, sans-serif;
+    }
 
-/* ── THEME CSS VARIABLES ── */
-:root {
-  --accent:        #00aaff;
-  --accent-rgb:    0,170,255;
-  --accent-border: rgba(0,140,220,0.35);
-  --accent-glow:   rgba(0,170,255,0.08);
-  --accent-dim:    rgba(0,140,220,0.2);
-  --accent-tab:    rgba(0,140,220,0.3);
-  --accent-hover:  rgba(0,140,220,0.1);
-  --accent-sel:    rgba(0,110,200,0.7);
-  --accent-scroll: rgba(0,140,220,0.55);
-  --accent-scroll-h:rgba(0,160,255,0.85);
-  --accent-notif-bg:rgba(0,50,110,0.92);
-  --accent-notif-b: rgba(0,170,255,0.45);
-  --accent-notif-c: #b0d8ff;
-  --accent-sep:    #1a4a7a;
-  --breadcrumb-bg: #05080e;
-  --panel-bg:      rgba(4,8,16,0.96);
-  --footer-bg:     rgba(3,6,12,0.98);
-  --fc-panel-bg:   rgba(5,8,14,0.93);
-}
+    :root {
+      --accent: #00aaff;
+      --accent-dim: rgba(0, 150, 235, .24);
+      --panel: rgba(4, 8, 16, .97);
+      --footer: rgba(3, 6, 12, .99);
+      --selected: rgba(0, 110, 200, .78);
+    }
 
-  
+    #overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 30px 0 0 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+    }
+    #overlay.visible { opacity: 1; pointer-events: all; }
 
-#overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:flex-start;justify-content:flex-start;padding:30px 0 0 20px;opacity:0;pointer-events:none;transition:opacity 0.22s ease;}
-#overlay.visible{opacity:1;pointer-events:all;}
+    #panel {
+      width: 420px;
+      max-width: calc(100vw - 40px);
+      background: var(--panel);
+      border: 1px solid rgba(0, 140, 220, .35);
+      border-radius: 5px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: auto;
+      max-height: calc(100vh - 70px);
+      box-shadow: 0 8px 48px rgba(0, 0, 0, .85);
+      transform: translateX(-18px);
+      transition: transform .25s cubic-bezier(.22, .68, 0, 1.15);
+    }
+    #overlay.visible #panel { transform: translateX(0); }
 
-#panel{
-  width:420px;
-  background:var(--panel-bg);
-  border-radius:5px;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  height:520px;
-  max-height:calc(100vh - 70px);
-  border:1px solid var(--accent-border);
-  box-shadow:0 8px 48px rgba(0,0,0,0.85);
-  transform:translateX(-18px);
-  transition:transform 0.25s cubic-bezier(.22,.68,0,1.15);
-}
-#overlay.visible #panel{transform:translateX(0);}
+    #header {
+      flex: 0 0 auto;
+      min-height: 84px;
+      max-height: 110px;
+      overflow: hidden;
+      background: #0788ef;
+      border-bottom: 1px solid rgba(0, 170, 255, .42);
+    }
+    #header img {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 84px;
+      max-height: 110px;
+      object-fit: cover;
+    }
 
+    #breadcrumb {
+      flex: 0 0 auto;
+      padding: 7px 14px;
+      color: #e5edf7;
+      background: #05080e;
+      border-bottom: 1px solid var(--accent-dim);
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-align: center;
+      text-transform: uppercase;
+    }
 
-#inputbox-overlay {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 99999;
-  pointer-events: all;
-  font-family: 'Geist', 'Poppins', sans-serif;
-}
-#inputbox-overlay.hidden { display: none !important; }
+    #items-wrap {
+      min-height: 0;
+      max-height: 420px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 4px 6px;
+      scroll-behavior: smooth;
+    }
+    #items-wrap::-webkit-scrollbar { width: 4px; }
+    #items-wrap::-webkit-scrollbar-track { background: rgba(255,255,255,.03); }
+    #items-wrap::-webkit-scrollbar-thumb { background: rgba(0, 140, 220, .58); border-radius: 2px; }
+    #items-wrap::-webkit-scrollbar-thumb:hover { background: rgba(0, 160, 255, .86); }
 
-.input-mainbg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.input-main {
-  background: rgba(0, 0, 0, 0.85);
-  border-radius: 0.5vh;
-  overflow: hidden;
-  min-width: 33.5vh;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.8);
-  border: 1px solid rgba(255,255,255,0.07);
-}
-.input-bg {
-  background: rgba(10, 10, 10, 0.95);
-  padding: 1.2vh 1.2vh 1.4vh;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8vh;
-}
-.input-title {
-  color: #ffffff;
-  font-size: 1.1vh;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-.input-content {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.3vh;
-  padding: 0.6vh 0.8vh;
-}
-.input-content input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #ffffff;
-  font-size: 1.3vh;
-  font-family: 'Geist', 'Poppins', sans-serif;
-  font-weight: 500;
-  width: 100%;
-  caret-color: rgb(200, 0, 0);
-}
-.input-content input::placeholder {
-  color: rgba(255,255,255,0.25);
-  font-weight: 400;
-}
+    .tabs-bar {
+      display: flex;
+      margin: 0 0 4px;
+      background: rgba(0, 0, 0, .4);
+      border-bottom: 1px solid rgba(0, 140, 220, .3);
+    }
+    .tab {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 5px 7px;
+      overflow: hidden;
+      color: #888;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-align: center;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      transition: color .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .tab:hover { color: #ddd; background: rgba(0, 140, 220, .1); }
+    .tab.active {
+      color: var(--accent);
+      background: rgba(0, 170, 255, .08);
+      border-bottom: 2px solid var(--accent);
+    }
 
-  
-/* ── PLAYER INFO BOX ── */
-#player-info-box{
-  position:fixed;
-  top:30px;
-  left:460px;
-  width:300px;
-  background:rgba(4,8,16,0.97);
-  border:1px solid var(--accent-border);
-  border-radius:5px;
-  overflow:hidden;
-  box-shadow:0 8px 32px rgba(0,0,0,0.8);
-  font-family:'Poppins',Arial,sans-serif;
-  transition:opacity 0.2s ease, transform 0.2s cubic-bezier(.22,.68,0,1.15);
-  z-index:8000;
-}
-#player-info-box.pib-hidden{opacity:0;pointer-events:none;transform:translateX(-10px);}
-#player-info-box:not(.pib-hidden){opacity:1;pointer-events:all;transform:translateX(0);}
+    .menu-separator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 6px 4px;
+    }
+    .sep-line { flex: 1; height: 1px; background: var(--accent-dim); }
+    .sep-label {
+      flex: 0 0 auto;
+      color: #1a4a7a;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
 
-.pib-header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:9px 14px 8px;
-  background:rgba(0,0,0,0.4);
-  border-bottom:1px solid var(--accent-tab);
-}
-#pib-name{color:#fff;font-size:13px;font-weight:600;letter-spacing:0.3px;}
-#pib-serverid{color:var(--accent);font-size:12px;font-weight:600;background:rgba(0,120,255,0.15);border:1px solid var(--accent-border);padding:1px 8px;border-radius:3px;}
+    .menu-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      width: 100%;
+      height: 38px;
+      gap: 11px;
+      padding: 0 12px;
+      color: #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background .13s ease, color .13s ease;
+    }
+    .menu-item:hover { background: rgba(0, 140, 220, .1); color: #fff; }
+    .menu-item.selected { background: var(--selected); color: #fff; }
+    .menu-item.entering { animation: rowIn .2s cubic-bezier(.22, .68, 0, 1.2); }
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
 
-.pib-rows{padding:6px 0;}
-.pib-row{
-  display:flex;align-items:center;gap:8px;
-  padding:4px 14px;
-  font-size:12px;color:#aaa;
-}
-.pib-icon{font-size:12px;width:16px;text-align:center;flex-shrink:0;}
-.pib-label{flex:1;color:#888;font-size:11.5px;}
-.pib-val{color:#ddd;font-weight:600;font-size:12px;}
+    .mi-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      min-width: 20px;
+      color: #aaa;
+      opacity: .7;
+    }
+    .mi-icon svg { width: 16px; height: 16px; }
+    .menu-item.selected .mi-icon { color: #fff; opacity: 1; }
+    .item-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .item-arrow { flex: 0 0 auto; color: #aaa; font-size: 14px; opacity: .55; }
+    .menu-item.selected .item-arrow { color: #fff; opacity: .95; }
 
-.pib-bars{
-  padding:8px 14px 10px;
-  border-top:1px solid var(--accent-dim);
-}
-.pib-bar-row{
-  display:flex;align-items:center;gap:6px;
-  margin-bottom:5px;font-size:11px;
-}
-.pib-bar-label{color:#888;flex:1;}
-.pib-bar-pct{color:#fff;font-weight:600;font-size:11px;min-width:30px;text-align:right;}
-.pib-bar-wrap{display:flex;gap:6px;}
-.pib-bar-track{flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
-.pib-bar-fill{height:100%;border-radius:3px;transition:width 0.3s ease;}
-.pib-bar-fill.hp{background:#3ddc84;}
-.pib-bar-fill.armor{background:var(--accent);}
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      flex: 0 0 36px;
+      width: 36px;
+      height: 20px;
+    }
+    .toggle-switch input { position: absolute; width: 0; height: 0; opacity: 0; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: #2a2a2a;
+      border: 1.5px solid #3a3a3a;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .22s ease, border-color .22s ease, box-shadow .22s ease;
+    }
+    .toggle-track::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #555;
+      box-shadow: 0 1px 2px rgba(0,0,0,.7);
+      transition: transform .22s cubic-bezier(.22, .68, 0, 1.2), background .22s ease;
+      will-change: transform;
+    }
+    .toggle-switch input:checked + .toggle-track {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 7px rgba(0, 170, 255, .42);
+    }
+    .toggle-switch input:checked + .toggle-track::after {
+      transform: translateX(16px);
+      background: #fff;
+    }
 
-  
-#header{background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;max-height:110px;}
-#header img{width:100%;height:auto;display:block;object-fit:cover;}
+    #footer {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 0 0 auto;
+      min-height: 28px;
+      padding: 7px 14px;
+      color: #777;
+      background: var(--footer);
+      border-top: 1px solid var(--accent-dim);
+      font-size: 11px;
+      font-weight: 500;
+    }
+    #footer-left { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #footer-count { margin-left: 10px; color: #c4d0df; white-space: nowrap; }
 
-/* ── KEYBIND SELECTOR ── */
-#kb-overlay{
-  position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
-  z-index:99999;pointer-events:all;
-  width:520px;
-}
-#kb-overlay.hidden{display:none !important;}
-#kb-bar{
-  background:rgba(5,5,8,0.96);
-  border:1px solid rgba(60,80,100,0.6);
-  border-radius:2px;
-  overflow:hidden;
-  box-shadow:0 4px 24px rgba(0,0,0,0.85);
-  animation:kbSlide 0.18s ease forwards;
-}
-@keyframes kbSlide{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+    #notifs {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: flex;
+      width: 295px;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .notif {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 14px;
+      border: 1px solid rgba(60, 130, 255, .45);
+      border-radius: 6px;
+      color: #cce0ff;
+      background: rgba(18, 75, 195, .92);
+      font-size: 12px;
+      line-height: 1.5;
+      pointer-events: all;
+      animation: slideIn .3s cubic-bezier(.22, .68, 0, 1.2) forwards;
+    }
+    .notif.success { color: #b0d8ff; background: rgba(0, 50, 110, .92); border-color: rgba(0, 170, 255, .45); }
+    .notif.error { color: #ffd0d0; background: rgba(160, 20, 20, .92); border-color: rgba(255, 80, 80, .45); }
+    .notif-icon { flex: 0 0 auto; }
+    .notif-text { flex: 1; }
+    .notif-title { display: block; font-weight: 600; }
+    .notif-desc { display: block; opacity: .8; font-size: 11px; }
+    .notif-close { cursor: pointer; opacity: .5; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(32px); } to { opacity: 1; transform: translateX(0); } }
 
-  
-
-#kb-title-row{
-  display:flex;align-items:center;gap:7px;
-  padding:10px 14px 9px;
-  border-bottom:1px solid rgba(0,200,220,0.45);
-}
-.kb-icon{color:rgba(100,150,255,0.85);flex-shrink:0;display:flex;align-items:center;}
-.kb-text{color:rgba(210,220,230,0.92);font-size:12px;letter-spacing:0.2px;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
-
-#kb-input-row{
-  padding:8px 14px 9px;
-  min-height:22px;
-  background:rgba(2,3,5,0.98);
-  display:flex;align-items:center;
-}
-#kb-cursor{
-  display:inline-block;width:2px;height:13px;
-  background:rgba(210,220,230,0.85);
-  vertical-align:middle;
-  animation:kbBlink 1s step-end infinite;
-}
-@keyframes kbBlink{0%,100%{opacity:1;}50%{opacity:0;}}
-
-#kb-confirm-row{
-  display:none;
-  align-items:center;justify-content:space-between;
-  padding:9px 14px;
-  background:rgba(4,6,10,0.98);
-  border-top:1px solid rgba(60,80,100,0.35);
-}
-#kb-confirm-row.visible{display:flex;}
-#kb-confirm-text{color:rgba(190,200,215,0.88);font-size:11.5px;font-family:'Poppins',Arial,sans-serif;font-weight:400;}
-#kb-confirm-text span{color:var(--accent);font-weight:600;}
-#kb-confirm-hint{color:rgba(120,130,145,0.7);font-size:10.5px;font-family:'Poppins',Arial,sans-serif;font-weight:500;letter-spacing:0.3px;}
-
-#breadcrumb{background:var(--breadcrumb-bg);color:#e0e0e0;font-size:11.5px;padding:7px 14px;border-bottom:1px solid var(--accent-dim);flex-shrink:0;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;text-align:center;font-family:'Poppins',Arial,sans-serif;}
-
-.notif.error{background:rgba(160,20,20,0.92);border-color:rgba(255,80,80,0.45);color:#ffd0d0;}
-.notif-title{display:block;font-weight:600;font-size:12px;line-height:1.4;}
-.notif-desc{display:block;font-size:11px;opacity:0.8;line-height:1.4;margin-top:1px;}
-
-.scrollable-display{display:flex;align-items:center;gap:6px;flex-shrink:0;font-size:12px;color:#aaa;font-family:'Poppins',Arial,sans-serif;}
-.scroll-value{min-width:80px;text-align:center;color:#ccc;font-weight:600;font-size:12px;}
-.menu-item.selected .scrollable-display{color:#fff;}
-.menu-item.selected .scroll-value{color:var(--accent);}
-.scroll-arrow{font-size:10px;opacity:0.5;}
-.menu-item.selected .scroll-arrow{opacity:1;}
-
-.toggle-switch{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;}
-.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
-.toggle-track{position:absolute;inset:0;background:#2a2a2a;border:1.5px solid #3a3a3a;border-radius:10px;cursor:pointer;transition:background 0.18s ease,border-color 0.18s ease;}
-.toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#555;transition:transform 0.18s cubic-bezier(.22,.68,0,1.2),background 0.18s ease;}
-input:checked + .toggle-track{background:var(--accent);border-color:var(--accent);}
-input:checked + .toggle-track::after{transform:translateX(16px);background:#fff;}
-
-.tabs-bar{display:flex;background:rgba(0,0,0,0.4);border-bottom:1px solid var(--accent-tab);margin-bottom:4px;flex-shrink:0;}
-.tab{flex:1;text-align:center;padding:8px 0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#888;cursor:pointer;transition:all 0.15s ease;font-family:'Poppins',Arial,sans-serif;}
-.tab:hover{color:#ccc;background:var(--accent-hover);}
-.tab.active{color:var(--accent);border-bottom:2px solid var(--accent);background:var(--accent-glow);}
-
-#items-wrap{overflow-y:scroll;overflow-x:hidden;flex:1;padding:4px 6px;scroll-behavior:smooth;}
-#items-wrap::-webkit-scrollbar{width:4px;}
-#items-wrap::-webkit-scrollbar-track{background:rgba(255,255,255,0.03);border-radius:2px;}
-#items-wrap::-webkit-scrollbar-thumb{background:var(--accent-scroll);border-radius:2px;}
-#items-wrap::-webkit-scrollbar-thumb:hover{background:var(--accent-scroll-h);}
-
-.menu-item{display:flex;align-items:center;padding:0 12px;height:38px;font-size:13px;color:#cccccc;cursor:pointer;position:relative;flex-shrink:0;border-radius:4px;transition:background 0.13s ease,color 0.13s ease;gap:11px;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
-.menu-item.selected{background:var(--accent-sel);color:#ffffff;}
-.mi-icon{font-size:16px;opacity:0.6;flex-shrink:0;width:20px;text-align:center;color:#aaa;display:flex;align-items:center;justify-content:center;}
-.menu-item.selected .mi-icon{opacity:1;color:#fff;}
-.item-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;font-weight:500;}
-.menu-item.selected .item-label{font-weight:600;}
-.item-arrow{font-size:12px;opacity:0.45;flex-shrink:0;color:#aaa;font-weight:400;}
-.menu-item.selected .item-arrow{opacity:0.9;color:#fff;}
-
-.item-dot{width:9px;height:9px;border-radius:50%;background:#252525;border:1.5px solid #3a3a3a;margin-left:6px;flex-shrink:0;transition:background 0.15s,border-color 0.15s;}
-.item-dot.on{background:var(--accent);border-color:var(--accent);}
-.menu-item.selected .item-dot{background:rgba(0,0,0,0.35);border-color:rgba(0,0,0,0.5);}
-.menu-item.selected .item-dot.on{background:var(--accent);border-color:var(--accent);}
-
-.menu-separator{display:flex;align-items:center;padding:7px 6px 4px;gap:7px;flex-shrink:0;}
-.sep-line{flex:1;height:1px;background:var(--accent-dim);}
-.sep-label{font-size:9px;color:var(--accent-sep);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
-
-.slider-row{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
-.slider-label{white-space:nowrap;font-size:12.5px;flex-shrink:0;font-weight:500;}
-.slider-track{flex:1;height:3px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;}
-.slider-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 0.1s ease;}
-.menu-item.selected .slider-track{background:rgba(0,0,0,0.2);}
-
-#footer{background:var(--footer-bg);color:#666;font-size:11px;padding:7px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--accent-dim);flex-shrink:0;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
-
-#notifs{position:fixed;top:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;width:295px;}
-.notif{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:6px;font-size:12px;line-height:1.5;animation:slideIn 0.3s cubic-bezier(.22,.68,0,1.2) forwards;pointer-events:all;border:1px solid;font-family:'Poppins',Arial,sans-serif;font-weight:400;}
-.notif.info{background:rgba(18,75,195,0.92);border-color:rgba(60,130,255,0.45);color:#cce0ff;}
-.notif.success{background:var(--accent-notif-bg);border-color:var(--accent-notif-b);color:var(--accent-notif-c);}
-.notif-icon{font-size:14px;flex-shrink:0;margin-top:1px;opacity:0.9;}
-.notif-text{flex:1;}
-.notif-close{font-size:13px;opacity:0.4;cursor:pointer;flex-shrink:0;padding:0 2px;}
-.notif-close:hover{opacity:1;}
-.notif.hiding{animation:slideOut 0.25s ease forwards;}
-@keyframes slideIn{from{opacity:0;transform:translateX(32px);}to{opacity:1;transform:translateX(0);}}
-@keyframes slideOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(32px);}}
-
-/* ── FREECAM OVERLAY ── */
-#freecam-overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:none;z-index:9500;pointer-events:none;}
-#freecam-overlay.visible{display:block;pointer-events:all;}
-
-#freecam-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:16px;height:16px;pointer-events:none;}
-#freecam-crosshair::before,#freecam-crosshair::after{content:'';position:absolute;background:rgba(255,255,255,0.9);border-radius:1px;}
-#freecam-crosshair::before{width:2px;height:100%;left:50%;transform:translateX(-50%);}
-#freecam-crosshair::after{width:100%;height:2px;top:50%;transform:translateY(-50%);}
-
-#freecam-text-list{
-  position:absolute;
-  bottom:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.85);
-  border:1px solid var(--accent);
-  border-radius:4px;
-  padding:12px 20px;
-  pointer-events:all;
-  z-index:9501;
-  max-width:300px;
-  text-align:center;
-}
-
-.fc-text-item{
-  color:#ccc;
-  font-size:14px;
-  font-family:'Poppins',Arial,sans-serif;
-  font-weight:400;
-  line-height:22px;
-  cursor:pointer;
-  padding:2px 0;
-}
-
-.fc-text-item.fc-text-hover{
-  color:var(--accent);
-  font-weight:600;
-}
-
-#freecam-hints{
-  position:absolute;
-  bottom:12px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:16px;
-  pointer-events:none;
-}
-.fc-hint{
-  display:flex;
-  align-items:center;
-  gap:5px;
-  font-family:'Poppins',Arial,sans-serif;
-  font-size:10px;
-  color:rgba(150,150,150,0.6);
-  font-weight:400;
-}
-.fc-key{
-  background:rgba(0,0,0,0.6);
-  border:1px solid rgba(255,255,255,0.15);
-  border-radius:3px;
-  padding:1px 5px;
-  font-size:9px;
-  font-weight:600;
-  color:#aaa;
-  font-family:'Poppins',Arial,sans-serif;
-  white-space:nowrap;
-}
-
-
-  
-#inputbox-overlay{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:99999;pointer-events:none;width:520px;}
-#inputbox-overlay.hidden{display:none !important;}
-#inputbox-bar{background:rgba(5,5,8,0.96);border:1px solid rgba(60,80,100,0.6);border-radius:2px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.85);animation:kbSlide 0.18s ease forwards;}
-#inputbox-title-row{display:flex;align-items:center;gap:7px;padding:10px 14px 9px;border-bottom:1px solid rgba(0,200,220,0.45);}
-#inputbox-label{color:rgba(210,220,230,0.92);font-size:12px;letter-spacing:0.2px;font-family:'Poppins',Arial,sans-serif;font-weight:500;}
-#inputbox-input-row{padding:8px 14px 9px;min-height:22px;background:rgba(2,3,5,0.98);display:flex;align-items:center;gap:4px;}
-#inputbox-typed{font-size:13px;color:#fff;font-family:'Poppins',Arial,sans-serif;font-weight:500;letter-spacing:0.3px;min-width:4px;}
-#inputbox-cursor{display:inline-block;width:2px;height:13px;background:rgba(210,220,230,0.85);vertical-align:middle;animation:kbBlink 1s step-end infinite;}
-#inputbox-hint-row{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:rgba(4,6,10,0.98);border-top:1px solid rgba(60,80,100,0.35);}
-#inputbox-hint-left{color:rgba(120,130,145,0.7);font-size:10.5px;font-family:'Poppins',Arial,sans-serif;font-weight:500;letter-spacing:0.3px;}
-#inputbox-hint-right{color:rgba(120,130,145,0.7);font-size:10.5px;font-family:'Poppins',Arial,sans-serif;font-weight:500;letter-spacing:0.3px;}
-
-  
-#freecam-hints{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:16px;pointer-events:none;}
-.fc-hint{display:flex;align-items:center;gap:5px;font-family:'Poppins',Arial,sans-serif;font-size:10px;color:rgba(150,150,150,0.6);font-weight:400;}
-.fc-key{background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:1px 5px;font-size:9px;font-weight:600;color:#aaa;font-family:'Poppins',Arial,sans-serif;white-space:nowrap;}
-</style>
+    @media (max-width: 560px) {
+      #overlay { padding-left: 12px; }
+      #panel { width: calc(100vw - 24px); }
+    }
+  </style>
 </head>
 <body>
+  <div id="notifs"></div>
 
-<div id="notifs"></div>
-
-  <div id="player-info-box" class="pib-hidden">
-  <div class="pib-header">
-    <span id="pib-name"></span>
-    <span id="pib-serverid"></span>
-  </div>
-  <div class="pib-rows">
-    <div class="pib-row"><span class="pib-icon">📍</span><span class="pib-label">Distance</span><span class="pib-val" id="pib-distance">—</span></div>
-    <div class="pib-row"><span class="pib-icon">🚗</span><span class="pib-label">Vehicle</span><span class="pib-val" id="pib-vehicle">—</span></div>
-    <div class="pib-row"><span class="pib-icon">🔫</span><span class="pib-label">Weapon</span><span class="pib-val" id="pib-weapon">—</span></div>
-    <div class="pib-row"><span class="pib-icon">⚡</span><span class="pib-label">Speed</span><span class="pib-val" id="pib-speed">—</span></div>
-  </div>
-  <div class="pib-bars">
-    <div class="pib-bar-row">
-      <span class="pib-bar-label">❤️ Health</span>
-      <span class="pib-bar-pct" id="pib-hp-pct">—</span>
-      <span class="pib-bar-label">🛡 Armor</span>
-      <span class="pib-bar-pct" id="pib-armor-pct">—</span>
-    </div>
-    <div class="pib-bar-wrap">
-      <div class="pib-bar-track hp"><div class="pib-bar-fill hp" id="pib-hp-bar"></div></div>
-      <div class="pib-bar-track armor"><div class="pib-bar-fill armor" id="pib-armor-bar"></div></div>
-    </div>
-  </div>
-</div>
-
-<div id="kb-overlay">
-  <div id="kb-bar">
-    <div id="kb-title-row">
-      <span class="kb-icon">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </span>
-      <span class="kb-text" id="kb-label">Select a keybind (Open key)</span>
-    </div>
-    <div id="kb-input-row"><span id="kb-cursor"></span></div>
-    <div id="kb-confirm-row">
-      <span id="kb-confirm-text">Are you sure you want to set to <span id="kb-confirm-key"></span>?</span>
-      <span id="kb-confirm-hint">ENTER to confirm</span>
-    </div>
-  </div>
-</div>
-
-<div id="inputbox-overlay" class="hidden">
-  <div class="input-mainbg">
-    <div class="input-main">
-      <div class="input-bg">
-        <div class="input-title" id="inputbox-label">Input</div>
-        <div class="input-content">
-          <input type="text" id="inputbox-field" placeholder="Enter value..." autocomplete="off" spellcheck="false" />
-        </div>
+  <div id="overlay">
+    <div id="panel">
+      <!-- Banner is an image slot. Replace this source in your hosted template. -->
+      <div id="header">
+        <img id="header-img" alt="Wave banner placeholder" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='860' height='220' viewBox='0 0 860 220'%3E%3Crect width='860' height='220' fill='%230788ef'/%3E%3Ctext x='430' y='122' text-anchor='middle' fill='white' font-family='Arial' font-size='31' font-weight='bold'%3EBANNER IMAGE PLACEHOLDER%3C/text%3E%3C/svg%3E" />
+      </div>
+      <div id="breadcrumb">MAIN</div>
+      <div id="items-wrap"></div>
+      <div id="footer">
+        <span id="footer-left">discord.gg/wave</span>
+        <span id="footer-count">0/0</span>
       </div>
     </div>
   </div>
-</div>
-  
-<!-- MAIN MENU -->
-<div id="overlay">
-  <div id="panel">
-    <div id="header">
-      <img id="header-img" src="https://i.postimg.cc/XvWpYwZY/fsdfs.webp"
-           onerror="this.style.display='none';" />
-    </div>
-    <div id="breadcrumb">HOME</div>
-    <div id="items-wrap"></div>
-    <div id="footer">
-      <span id="footer-left">Version: Beta | 24hrs ago (pls report bugs)</span>
-      <span id="footer-count">1/9</span>
-    </div>
-  </div>
-</div>
 
+  <script>
+    /* Empty template: all menu pages and controls are supplied by Lua. */
+    const MENUS = { main: { title: "main", items: [] } };
+    const ICONS = {
+      self: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
+      network: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+      vehicle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="8" rx="2"/><path d="M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>',
+      weapons: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7 7m0 0l4-4 7 7-4 4M10 10l-4 8 4-4 4 4 8-4"/></svg>',
+      settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/></svg>',
+      misc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 12h8M8 8h8M8 16h5"/></svg>'
+    };
 
-  
-<!-- FREECAM OVERLAY - SIMPLE TEXT VERSION -->
-<div id="freecam-overlay">
-  <div id="freecam-crosshair"></div>
-  <div id="freecam-text-list"></div>
-  <div id="freecam-hints">
-    <div class="fc-hint"><span class="fc-key">SCROLL</span> Navigate</div>
-    <div class="fc-hint"><span class="fc-key">LMB</span> Activate</div>
-  </div>
-</div>
+    let menuOpen = false;
+    let stack = ["main"];
+    let cursorIdx = 0;
+    let previousCursorIdx = 0;
+    const toggleState = {};
+    let activeTabIndex = 0;
 
-  
-<script>
-/* ── THEME DEFINITIONS ── */
-const THEMES = {
-  "Wave": {
-    "--accent":          "#00aaff",
-    "--accent-rgb":      "0,170,255",
-    "--accent-border":   "rgba(0,140,220,0.35)",
-    "--accent-glow":     "rgba(0,170,255,0.08)",
-    "--accent-dim":      "rgba(0,140,220,0.2)",
-    "--accent-tab":      "rgba(0,140,220,0.3)",
-    "--accent-hover":    "rgba(0,140,220,0.1)",
-    "--accent-sel":      "rgba(0,110,200,0.7)",
-    "--accent-scroll":   "rgba(0,140,220,0.55)",
-    "--accent-scroll-h": "rgba(0,160,255,0.85)",
-    "--accent-notif-bg": "rgba(0,50,110,0.92)",
-    "--accent-notif-b":  "rgba(0,170,255,0.45)",
-    "--accent-notif-c":  "#b0d8ff",
-    "--accent-sep":      "#1a4a7a",
-    "--breadcrumb-bg":   "#05080e",
-    "--panel-bg":        "rgba(4,8,16,0.96)",
-    "--footer-bg":       "rgba(3,6,12,0.98)",
-    "--fc-panel-bg":     "rgba(5,8,14,0.93)",
-    "_banner": "https://i.postimg.cc/XvWpYwZY/fsdfs.webp",
-  },
-  "Spotify": {
-    "--accent":          "#ff1493",
-    "--accent-rgb":      "255,20,147",
-    "--accent-border":   "rgba(255,20,147,0.35)",
-    "--accent-glow":     "rgba(255,20,147,0.08)",
-    "--accent-dim":      "rgba(255,20,147,0.2)",
-    "--accent-tab":      "rgba(255,20,147,0.3)",
-    "--accent-hover":    "rgba(255,20,147,0.1)",
-    "--accent-sel":      "rgba(255,20,147,0.35)",
-    "--accent-scroll":   "rgba(255,20,147,0.55)",
-    "--accent-scroll-h": "rgba(255,20,147,0.85)",
-    "--accent-notif-bg": "rgba(140,0,80,0.92)",
-    "--accent-notif-b":  "rgba(255,20,147,0.45)",
-    "--accent-notif-c":  "#ffb0d6",
-    "--accent-sep":      "#cc1080",
-    "--breadcrumb-bg":   "#0a0608",
-    "--panel-bg":        "rgba(6,6,8,0.96)",
-    "--footer-bg":       "rgba(5,4,6,0.98)",
-    "--fc-panel-bg":     "rgba(8,6,8,0.93)",
-    "_banner": "https://files.catbox.moe/tywnzl.webp",
-  },
-  "Trump": {
-    "--accent":          "#cc2200",
-    "--accent-rgb":      "204,34,0",
-    "--accent-border":   "rgba(180,30,0,0.45)",
-    "--accent-glow":     "rgba(204,34,0,0.08)",
-    "--accent-dim":      "rgba(180,30,0,0.25)",
-    "--accent-tab":      "rgba(180,30,0,0.35)",
-    "--accent-hover":    "rgba(180,30,0,0.12)",
-    "--accent-sel":      "rgba(160,20,0,0.75)",
-    "--accent-scroll":   "rgba(180,30,0,0.55)",
-    "--accent-scroll-h": "rgba(210,40,0,0.85)",
-    "--accent-notif-bg": "rgba(100,10,0,0.92)",
-    "--accent-notif-b":  "rgba(220,40,0,0.5)",
-    "--accent-notif-c":  "#ffd0c0",
-    "--accent-sep":      "#7a1a00",
-    "--breadcrumb-bg":   "#0e0502",
-    "--panel-bg":        "rgba(14,6,4,0.96)",
-    "--footer-bg":       "rgba(10,4,3,0.98)",
-    "--fc-panel-bg":     "rgba(12,5,4,0.93)",
-    "_banner": "https://media.discordapp.net/attachments/1158261697149153312/1505459748974104727/image.png?ex=6a0ab426&is=6a0962a6&hm=c91f4357396a020e2963fdc2c65474d945a29998dd03367c756097438e718563&=&format=webp&quality=lossless",
-  },
-};
-/* ── INPUT BOX (Risk style) ── */
-(function(){
-  const ibOverlay = document.getElementById("inputbox-overlay");
-  const ibLabel   = document.getElementById("inputbox-label");
-  const ibField   = document.getElementById("inputbox-field");
+    const overlay = document.getElementById("overlay");
+    const breadcrumb = document.getElementById("breadcrumb");
+    const itemsWrap = document.getElementById("items-wrap");
+    const footerCount = document.getElementById("footer-count");
 
-  window.addEventListener("message", ev => {
-    let msg;
-    try { msg = typeof ev.data === "string" ? JSON.parse(ev.data) : ev.data; }
-    catch { return; }
-    if (!msg || msg._crown) return;
-
-    if (msg.action === "inputbox_open") {
-      ibLabel.textContent   = msg.label || "Input";
-      ibField.placeholder   = msg.placeholder || "Enter value...";
-      ibField.value         = msg.value || "";
-      ibOverlay.classList.remove("hidden");
-
-    } else if (msg.action === "inputbox_update") {
-      ibField.value = msg.value || "";
-
-    } else if (msg.action === "inputbox_close") {
-      ibOverlay.classList.add("hidden");
-      ibField.value = "";
+    function sendGame(data) {
+      try {
+        window.parent.postMessage(JSON.stringify({ _crown: true, ...data }), "*");
+      } catch (_) {}
     }
-  });
-})();
 
-
-
-
-
-
-  
-
-const THEME_NAMES = Object.keys(THEMES); // ["Wave", "Spotify", "Trump"]
-let currentThemeIdx = 0; // start on Wave
-
-function applyTheme(name) {
-  const t = THEMES[name];
-  if (!t) return;
-  const root = document.documentElement;
-  for (const [k, v] of Object.entries(t)) {
-    if (!k.startsWith("_")) root.style.setProperty(k, v);
-  }
-  // update banner
-  const img = document.getElementById("header-img");
-  if (img && t._banner) {
-    img.style.display = "";
-    img.src = t._banner;
-  }
-  // update the scrollable item index to match
-  const settingsMenu = MENUS.settings;
-  if (settingsMenu) {
-    const item = settingsMenu.items.find(i => i.key === "theme");
-    if (item) item.index = THEME_NAMES.indexOf(name) + 1;
-  }
-}
-
-/* ── ICONS ── */
-const ICONS = {
-  self:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
-  network:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
-  weapons:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7 7m0 0l4-4 7 7-4 4M10 10l-4 8 4-4 4 4 8-4"/></svg>`,
-  esp:         `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="10" ry="5"/><circle cx="12" cy="12" r="2"/></svg>`,
-  vehicle:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="10" width="22" height="8" rx="2"/><path d="M5 10V7a2 2 0 012-2h10a2 2 0 012 2v3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
-  misc:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>`,
-  destructive: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 7 5 10 5 14a7 7 0 0014 0c0-4-3-7-7-12z"/></svg>`,
-  triggers:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-  settings:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>`,
-};
-
-/* ── MENUS ── */
-const MENUS = { main:{ title:"main", items:[] } };
-
-MENUS.main.items = [
-  { type:"submenu", label:"Self",        iconKey:"self",        target:"self" },
-  { type:"submenu", label:"Network",     iconKey:"network",     target:"network" },
-  { type:"submenu", label:"Weapons",     iconKey:"weapons",     target:"weapons" },
-  { type:"submenu", label:"ESP",         iconKey:"esp",         target:"esp" },
-  { type:"submenu", label:"Vehicle",     iconKey:"vehicle",     target:"vehicle" },
-  { type:"submenu", label:"Misc",        iconKey:"misc",        target:"misc" },
-  { type:"submenu", label:"Destructive", iconKey:"destructive", target:"destructive" },
-  { type:"submenu", label:"Triggers",    iconKey:"triggers",    target:"triggers" },
-  { type:"submenu", label:"Settings",    iconKey:"settings",    target:"settings" },
-];
-
-MENUS.self = { title:"self", items:[
-  { type:"toggle", label:"God Mode",      key:"godmode" },
-  { type:"toggle", label:"No Clip",       key:"noclip" },
-  { type:"toggle", label:"Infinite Ammo", key:"infammo" },
-  { type:"slider", label:"Health",        key:"health", min:0, max:100, val:100 },
-]};
-
-MENUS.weapons = { title:"weapons", items:[
-  { type:"toggle", label:"Aimbot",     key:"aimbot" },
-  { type:"toggle", label:"No Recoil",  key:"norecoil" },
-]};
-
-MENUS.settings = { title:"settings", items:[
-  { type:"scrollable", label:"Theme", key:"theme", options: THEME_NAMES, index: 1 },
-]};
-
-/* ── FREECAM STATE ── */
-const FreecamWeaponList  = ["WEAPON_APPISTOL","WEAPON_PISTOL","WEAPON_SMG","WEAPON_ASSAULTRIFLE","WEAPON_RPG","WEAPON_PERMKILL","WEAPON_AIRSTRIKE_ROCKET"];
-const FreecamVehicleList = ["tractor","towtruck2","towtruck","mower","freight","limo2","vigilante","shamal","cargoplane","jet","Kosatka","pbus2","wastelander","pbus","rcbandito","bus","police3","policeold1","policeold2","baletrailer"];
-
-const FreecamOptions = [
-  { label: "Default" },
-  { label: "Teleport" },
-  { label: "Shoot Weapon",     sub: "weapon" },
-  { label: "Spawn Vehicle",    sub: "vehicle" },
-  { label: "Map Destroyer" },
-  { label: "Attach Prop" },
-  { label: "Bug Player" },
-  { label: "Kick from Vehicle" },
-  { label: "NPC Vehicle Hijack" },
-  { label: "Delete Vehicle" },
-  { label: "Detach Wheels" },
-];
-
-let freecamVisible    = false;
-let freecamHoveredIdx = 0;
-let freecamWeaponIdx  = 0;
-let freecamVehicleIdx = 0;
-
-const fcOverlay  = document.getElementById("freecam-overlay");
-const fcOptList  = document.getElementById("freecam-options");
-const fcSubPanel = document.getElementById("freecam-sub-panel");
-const fcSubList  = document.getElementById("freecam-sub-list");
-
-function getSubList() {
-  const opt = FreecamOptions[freecamHoveredIdx];
-  if (!opt || !opt.sub) return null;
-  return opt.sub === "weapon" ? FreecamWeaponList : FreecamVehicleList;
-}
-function getSubIdx() {
-  const opt = FreecamOptions[freecamHoveredIdx];
-  if (!opt || !opt.sub) return 0;
-  return opt.sub === "weapon" ? freecamWeaponIdx : freecamVehicleIdx;
-}
-function setSubIdx(i) {
-  const opt = FreecamOptions[freecamHoveredIdx];
-  if (!opt || !opt.sub) return;
-  if (opt.sub === "weapon") freecamWeaponIdx = i;
-  else freecamVehicleIdx = i;
-}
-
-
-function renderFreecam() {
-  const textList = document.getElementById("freecam-text-list");
-  textList.innerHTML = FreecamOptions.map((opt, i) => {
-    const hov = i === freecamHoveredIdx;
-    let display = opt.label;
-    
-    if (opt.sub) {
-      let subList = opt.sub === "weapon" ? FreecamWeaponList : FreecamVehicleList;
-      let subIdx = opt.sub === "weapon" ? freecamWeaponIdx : freecamVehicleIdx;
-      display = opt.label + ` < ${subList[subIdx]} >`;
+    function currentMenu() {
+      return MENUS[stack[stack.length - 1]] || MENUS.main;
     }
-    
-    return `<div class="fc-text-item${hov ? " fc-text-hover" : ""}">${display}</div>`;
-  }).join("");
-}
 
+    function activeTabsItem(menu) {
+      return menu.items.find(item => item.type === "tabs") || null;
+    }
 
-function showFreecam(weaponIndex, vehicleIndex) {
-  freecamVisible    = true;
-  freecamWeaponIdx  = Math.max(0, (weaponIndex  || 1) - 1);
-  freecamVehicleIdx = Math.max(0, (vehicleIndex || 1) - 1);
-  freecamHoveredIdx = 0;
-  fcOverlay.classList.add("visible");
-  renderFreecam();
-}
-  
-function hideFreecam() {
-  freecamVisible = false;
-  fcOverlay.classList.remove("visible");
-}
+    function activeTabName(menu) {
+      const tabsItem = activeTabsItem(menu);
+      if (!tabsItem || !Array.isArray(tabsItem.tabs) || !tabsItem.tabs.length) return null;
+      activeTabIndex = Math.max(0, Math.min(activeTabIndex, tabsItem.tabs.length - 1));
+      return tabsItem.tabs[activeTabIndex];
+    }
 
-document.addEventListener("wheel", e => {
-  if (!freecamVisible) return;
-  e.preventDefault();
-  freecamHoveredIdx = (freecamHoveredIdx + (e.deltaY < 0 ? 1 : -1) + FreecamOptions.length) % FreecamOptions.length;
-  renderFreecam();
-  sendGame({ action: "freecamOptionChange", index: freecamHoveredIdx + 1 });
-}, { passive: false });
+    function navItems(menu) {
+      const tab = activeTabName(menu);
+      return menu.items.filter(item => {
+        if (item.type === "tabs" || item.type === "sep") return false;
+        return tab == null || !item.tab || item.tab === tab;
+      });
+    }
 
-fcOverlay.addEventListener("click", e => {
-  if (!freecamVisible) return;
-  const opt = FreecamOptions[freecamHoveredIdx];
-  sendGame({ action: "freecamActivate", index: freecamHoveredIdx + 1, option: opt ? opt.label : "", subIndex: getSubIdx() + 1 });
-});
+    function currentSelected() {
+      const nav = navItems(currentMenu());
+      return nav[cursorIdx] || null;
+    }
 
+    function iconFor(item) {
+      if (item.iconHtml) return item.iconHtml;
+      return ICONS[item.iconKey] || ICONS.misc;
+    }
 
-
-
-/* ── MENU STATE ── */
-let menuOpen=false,stack=["main"],cursorIdx=0,prevCursorIdx=0;
-const toggles={},sliders={};
-Object.values(MENUS).forEach(m=>m.items.forEach(item=>{
-  if(item.type==="toggle")toggles[item.key]=item.defaultOn||false;
-  if(item.type==="slider")sliders[item.key]=item.val??0;
-}));
-
-const overlay    = document.getElementById("overlay");
-const breadcrumb = document.getElementById("breadcrumb");
-const itemsWrap  = document.getElementById("items-wrap");
-const footerCnt  = document.getElementById("footer-count");
-
-function currentMenu(){return MENUS[stack[stack.length-1]];}
-function getActiveTabName(){
-  const menu=currentMenu();
-  const tabsItem=menu.items.find(i=>i.type==="tabs");
-  if(!tabsItem)return null;
-  return tabsItem.tabs[tabsItem.activeTab||0];
-}
-
-function navItems(){
-  const menu=currentMenu();
-  const activeTab=getActiveTabName();
-  return menu.items.filter(item=>{
-    if(item.type==="sep"||item.type==="tabs")return false;
-    if(activeTab!==null&&item.tab&&item.tab!==activeTab)return false;
-    return true;
-  });
-}
-
-function render(){
-  const menu=currentMenu();
-  const nav=navItems();
-  cursorIdx=Math.max(0,Math.min(cursorIdx,nav.length-1));
-  breadcrumb.textContent=stack[stack.length-1].toUpperCase();
-  buildItems(menu,nav);
-  prevCursorIdx=cursorIdx;
-  footerCnt.textContent=`${cursorIdx+1}/${nav.length}`;
-  const sel=itemsWrap.querySelector(".selected");
-  if(sel)sel.scrollIntoView({block:"nearest",behavior:"smooth"});
-}
-
-let currentTab=0;
-
-function buildItems(menu,nav){
-  itemsWrap.innerHTML="";
-  const hasTabs=menu.items.some(i=>i.type==="tabs");
-  let activeTab=null;
-
-  if(hasTabs){
-    const tabsItem=menu.items.find(i=>i.type==="tabs");
-    if(tabsItem){
-      activeTab=tabsItem.tabs[tabsItem.activeTab||0];
-      currentTab=tabsItem.activeTab||0;
-      const tabsBar=document.createElement("div");
-      tabsBar.className="tabs-bar";
-      tabsBar.innerHTML=tabsItem.tabs.map((tab,idx)=>
-        `<div class="tab${idx===currentTab?" active":""}" data-tab-idx="${idx}">${tab}</div>`
-      ).join("");
-      itemsWrap.appendChild(tabsBar);
-      tabsBar.querySelectorAll(".tab").forEach(tab=>{
-        tab.addEventListener("click",()=>{
-          const idx=parseInt(tab.dataset.tabIdx);
-          if(!isNaN(idx))switchTab(idx);
+    function renderTabs(menu) {
+      const tabsItem = activeTabsItem(menu);
+      if (!tabsItem || !Array.isArray(tabsItem.tabs)) return;
+      const tabs = document.createElement("div");
+      tabs.className = "tabs-bar";
+      tabsItem.tabs.forEach((name, index) => {
+        const tab = document.createElement("div");
+        tab.className = "tab" + (index === activeTabIndex ? " active" : "");
+        tab.textContent = name;
+        tab.addEventListener("click", () => {
+          activeTabIndex = index;
+          cursorIdx = 0;
+          previousCursorIdx = 0;
+          render();
         });
+        tabs.appendChild(tab);
       });
+      itemsWrap.appendChild(tabs);
     }
-  }
 
-  let ni=0;
-  menu.items.forEach(item=>{
-    if(item.type==="tabs")return;
-    if(hasTabs&&item.tab&&item.tab!==activeTab)return;
-    if(item.type==="sep"){
-      const sep=document.createElement("div");
-      sep.className="menu-separator";
-      sep.innerHTML=`<div class="sep-line"></div><span class="sep-label">${item.label}</span><div class="sep-line"></div>`;
-      itemsWrap.appendChild(sep);
-      return;
-    }
-    const sel=ni===cursorIdx;
-    const myNi=ni++;
-    const row=document.createElement("div");
-    row.className="menu-item"+(sel?" selected":"");
-    row.dataset.ni=myNi;
-    if(sel){
-      row.style.cssText="transform:translateY(8px);opacity:0.4;transition:none;";
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        row.style.transition="transform 0.2s cubic-bezier(.22,.68,0,1.2),opacity 0.15s ease";
-        row.style.transform="translateY(0)";row.style.opacity="1";
-      }));
-    }
-    if(item.type==="submenu"){
-      const svgIcon=ICONS[item.iconKey]||"";
-      row.innerHTML=`<span class="mi-icon">${svgIcon}</span><span class="item-label">${item.label}</span><span class="item-arrow">>></span>`;
-    } else if(item.type==="toggle"){
-      const on=toggles[item.key];
-      row.innerHTML=`<span class="item-label">${item.label}</span>
-        <label class="toggle-switch" onclick="event.stopPropagation()">
-          <input type="checkbox"${on?" checked":""} onchange="toggles['${item.key}']=this.checked;sendGame({action:'togglePress',key:'${item.key}',value:this.checked})">
-          <span class="toggle-track"></span>
-        </label>`;
-    } else if(item.type==="slider"){
-      const v=sliders[item.key]??0;
-      const pct=((v-item.min)/(item.max-item.min)*100).toFixed(1);
-      row.innerHTML=`<div class="slider-row"><span class="slider-label">${item.label}: ${v}</span><div class="slider-track"><div class="slider-fill" style="width:${pct}%"></div></div></div><span class="item-dot on"></span>`;
-    } else if(item.type==="scrollable"){
-      const opts=item.options||[];
-      const idx=(item.index||1)-1;
-      const val=opts[idx]||"";
-      row.innerHTML=`
-        <span class="item-label">${item.label}</span>
-        <span class="scrollable-display">
-          <span class="scroll-arrow">◀</span>
-          <span class="scroll-value">${val}</span>
-          <span class="scroll-arrow">▶</span>
-        </span>`;
-    } else {
-      row.innerHTML=`<span class="item-label">${item.label}</span>`;
-    }
-    itemsWrap.appendChild(row);
-  });
-}
+    function render() {
+      const menu = currentMenu();
+      const nav = navItems(menu);
+      cursorIdx = Math.max(0, Math.min(cursorIdx, Math.max(0, nav.length - 1)));
+      breadcrumb.textContent = String(menu.title || stack[stack.length - 1] || "main").toUpperCase();
+      itemsWrap.replaceChildren();
+      renderTabs(menu);
 
-function switchTab(newTabIdx){
-  const menu=currentMenu();
-  const tabsItem=menu.items.find(i=>i.type==="tabs");
-  if(tabsItem){tabsItem.activeTab=newTabIdx;currentTab=newTabIdx;cursorIdx=0;prevCursorIdx=0;render();}
-}
+      let navIndex = 0;
+      menu.items.forEach(item => {
+        if (item.type === "tabs") return;
+        if (activeTabName(menu) != null && item.tab && item.tab !== activeTabName(menu)) return;
+        if (item.type === "sep") {
+          const sep = document.createElement("div");
+          sep.className = "menu-separator";
+          sep.innerHTML = `<div class="sep-line"></div><span class="sep-label"></span><div class="sep-line"></div>`;
+          sep.querySelector(".sep-label").textContent = item.label || "";
+          itemsWrap.appendChild(sep);
+          return;
+        }
 
-function activate(){
-  const item=navItems()[cursorIdx];
-  if(!item)return;
-  if(item.type==="submenu"){
-    itemsWrap.style.cssText="transition:opacity 0.1s ease,transform 0.12s ease;opacity:0;transform:translateX(-10px);";
-    setTimeout(()=>{
-      stack.push(item.target);cursorIdx=0;prevCursorIdx=0;render();
-      itemsWrap.style.cssText="transform:translateX(10px);opacity:0;";
-      requestAnimationFrame(()=>{
-        itemsWrap.style.cssText="transition:opacity 0.15s ease,transform 0.18s cubic-bezier(.22,.68,0,1.2);transform:translateX(0);opacity:1;";
-      });
-    },100);
-  } else if(item.type==="toggle"){
-    toggles[item.key]=!toggles[item.key];
-    sendGame({action:"togglePress",key:item.key,value:toggles[item.key]});
-    render();
-  } else if(item.type==="action"){
-    sendGame({action:"run",label:item.label,id:item.id});
-  } else if(item.type==="scrollable"){
-    
-  }
-}
+        const index = navIndex++;
+        const row = document.createElement("div");
+        row.className = "menu-item" + (index === cursorIdx ? " selected" : "");
+        row.dataset.navIndex = String(index);
+        row.classList.add("entering");
 
-function goBack(){
-  if(stack.length>1){
-    itemsWrap.style.cssText="opacity:0;transform:translateX(10px);";
-    setTimeout(()=>{
-      stack.pop();cursorIdx=0;prevCursorIdx=0;render();
-      itemsWrap.style.cssText="transform:translateX(-10px);opacity:0;";
-      requestAnimationFrame(()=>{
-        itemsWrap.style.cssText="transition:opacity 0.15s ease,transform 0.18s cubic-bezier(.22,.68,0,1.2);transform:translateX(0);opacity:1;";
-      });
-    },100);
-  }else hideMenu();
-}
+        if (item.type === "submenu") {
+          row.innerHTML = `<span class="mi-icon">${iconFor(item)}</span><span class="item-label"></span><span class="item-arrow">›</span>`;
+          row.querySelector(".item-label").textContent = item.label || "Page";
+        } else if (item.type === "toggle") {
+          const checked = Boolean(toggleState[item.key]);
+          row.innerHTML = `<span class="item-label"></span><label class="toggle-switch"><input type="checkbox" ${checked ? "checked" : ""}><span class="toggle-track"></span></label>`;
+          row.querySelector(".item-label").textContent = item.label || "Toggle";
+          const input = row.querySelector("input");
+          input.addEventListener("click", event => event.stopPropagation());
+          input.addEventListener("change", () => activateToggle(item, input.checked));
+        } else {
+          row.innerHTML = `<span class="item-label"></span>`;
+          row.querySelector(".item-label").textContent = item.label || "Button";
+        }
 
-function nudgeSlider(dir){
-  const item=navItems()[cursorIdx];
-  if(!item||item.type!=="slider")return;
-  const step=Math.max(1,Math.round((item.max-item.min)/50));
-  sliders[item.key]=Math.max(item.min,Math.min(item.max,sliders[item.key]+dir*step));
-  sendGame({action:"slider",key:item.key,value:sliders[item.key]});
-  render();
-}
-
-function nudgeScrollable(dir){
-  const item=navItems()[cursorIdx];
-  if(!item||item.type!=="scrollable")return;
-  const count=(item.options||[]).length;
-  if(count===0)return;
-  item.index=((item.index||1)-1+dir+count)%count+1;
-  const newVal=item.options[item.index-1];
-  if(item.key==="theme"){
-    applyTheme(newVal);
-    showNotif("Theme", "Switched to " + newVal, "success");
-  }
-  sendGame({action:"updateScrollable",key:item.key,index:item.index,value:newVal});
-  render();
-}
-
-document.addEventListener("keydown", e => {
-  // Skip all key handling if keybind selector is open
-  const kbOverlay = document.getElementById("kb-overlay");
-  if(kbOverlay && !kbOverlay.classList.contains("hidden")){
-    return; // Let keybind selector handle the key
-  }
-
-  if(freecamVisible){
-    if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
-      e.preventDefault();
-      const subList=getSubList();
-      if(subList){
-        const dir=e.key==="ArrowRight"?1:-1;
-        setSubIdx((getSubIdx()+dir+subList.length)%subList.length);
-        renderFreecam();
-        sendGame({action:"freecamSubChange",index:getSubIdx()+1});
-      }
-    }
-    return;
-  }
-
-  const key=e.key;
-  if(key==="Insert"||e.keyCode===45){menuOpen?hideMenu():showMenu();return;}
-  if(!menuOpen)return;
-
-  if(key==="e"||key==="E"||key==="q"||key==="Q"){
-    e.preventDefault();
-    const menu=currentMenu();
-    if(menu.items.some(i=>i.type==="tabs"))handleKey(key);
-    return;
-  }
-
-  const nav=navItems();
-  const item=nav[cursorIdx];
-  switch(key){
-    case "ArrowUp":   e.preventDefault();prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx-1+nav.length)%nav.length;render();break;
-    case "ArrowDown": e.preventDefault();prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx+1)%nav.length;render();break;
-    case "ArrowRight":
-      e.preventDefault();
-      if(item&&item.type==="slider")nudgeSlider(1);
-      else if(item&&item.type==="scrollable")nudgeScrollable(1);
-      break;
-    case "ArrowLeft":
-      e.preventDefault();
-      if(item&&item.type==="slider")nudgeSlider(-1);
-      else if(item&&item.type==="scrollable")nudgeScrollable(-1);
-      else goBack();
-      break;
-    case "Enter":    e.preventDefault();activate();break;
-    case "Backspace":case "Escape":e.preventDefault();goBack();break;
-  }
-},true);
-
-itemsWrap.addEventListener("click",e=>{
-  const row=e.target.closest(".menu-item");
-  if(!row)return;
-  const idx=parseInt(row.dataset.ni);
-  if(!isNaN(idx)){prevCursorIdx=cursorIdx;cursorIdx=idx;render();activate();}
-});
-
-function showMenu(){menuOpen=true;overlay.classList.add("visible");render();}
-function hideMenu(){menuOpen=false;overlay.classList.remove("visible");}
-
-function sendGame(data){
-  try{window.parent.postMessage(JSON.stringify({_crown:true,...data}),"*");}catch(e){}
-}
-
-window.addEventListener("message",ev=>{
-  let msg;
-  try{msg=typeof ev.data==="string"?JSON.parse(ev.data):ev.data;}catch{return;}
-  if(!msg||msg._crown)return;
-
-  switch(msg.action){
-    case"show":showMenu();break;
-    case"hide":hideMenu();break;
-    case"toggle":menuOpen?hideMenu():showMenu();break;
-    case"displayFreecam":
-      if(msg.visible){showFreecam(msg.weaponIndex,msg.vehicleIndex);}else{hideFreecam();}
-      break;
-    case"freecamSetHovered":
-      if(msg.index!=null){
-        freecamHoveredIdx=Math.max(0,Math.min(FreecamOptions.length-1,(msg.index||1)-1));
-        if(freecamVisible)renderFreecam();
-      }
-      break;
-    case"freecamScroll":
-      if(freecamVisible){
-        freecamHoveredIdx=(freecamHoveredIdx+(msg.delta>0?1:-1)+FreecamOptions.length)%FreecamOptions.length;
-        renderFreecam();
-        sendGame({action:"freecamOptionChange",index:freecamHoveredIdx+1});
-      }
-      break;
-    case"showKeybindSelector":break;
-    case"keybindConfirmed":{
-      const confirmKey=msg.key||"";
-      document.getElementById("kb-confirm-key").textContent=confirmKey;
-      document.getElementById("kb-confirm-row").classList.add("visible");
-      document.getElementById("kb-label").textContent="Select a keybind (Open key)";
-      document.getElementById("kb-cursor").style.animation="none";
-      document.getElementById("kb-cursor").style.opacity="0";
-      break;
-    }
-      case "inputbox_open":
-  document.getElementById("inputbox-label").textContent = msg.label || "Enter value";
-  document.getElementById("inputbox-typed").textContent = msg.value || "";
-  document.getElementById("inputbox-overlay").classList.remove("hidden");
-  break;
-case "inputbox_update":
-  document.getElementById("inputbox-typed").textContent = msg.value || "";
-  break;
-case "inputbox_close":
-  document.getElementById("inputbox-overlay").classList.add("hidden");
-  document.getElementById("inputbox-typed").textContent = "";
-  break;
-      
-    case"keybindFinalised":
-      document.getElementById("kb-label").textContent="Open key set to: "+(msg.key||"");
-      document.getElementById("kb-confirm-row").classList.remove("visible");
-      document.getElementById("kb-cursor").style.opacity="0";
-      setTimeout(()=>{document.getElementById("kb-overlay").classList.add("hidden");showMenu();},900);
-      break;
-    case"freecamSetWeapon":
-      if(msg.index!=null){freecamWeaponIdx=(msg.index||1)-1;if(freecamVisible)renderFreecam();}
-      break;
-    case"freecamSetVehicle":
-      if(msg.index!=null){freecamVehicleIdx=(msg.index||1)-1;if(freecamVisible)renderFreecam();}
-      break;
-    case"notify":
-      showNotif(msg.title||"",msg.description||"",msg.notifType||"info");
-      break;
-    case"updateToggle":
-    case"setToggle":
-      if(msg.key!=null){toggles[msg.key]=msg.value;if(menuOpen)render();}break;
-    case"navigate":
-      if(msg.menu&&MENUS[msg.menu]){stack=[msg.menu];cursorIdx=0;if(menuOpen)render();}break;
-    case"key":
-      if(msg.key)handleKey(msg.key);break;
-    case"loadMenus":
-      if(msg.menus&&typeof msg.menus==="object"){
-        Object.assign(MENUS,msg.menus);
-        if(menuOpen)render();
-      }
-      break;
-    case"updateScrollable":
-      if(msg.key!=null){
-        Object.values(MENUS).forEach(menu=>{
-          menu.items.forEach(item=>{
-            if(item.type==="scrollable"&&item.key===msg.key){item.index=msg.index;}
-          });
+        row.addEventListener("click", event => {
+          if (event.target.closest("input")) return;
+          cursorIdx = index;
+          activate();
         });
-        if(menuOpen)render();
-      }
-      break;
-  }
-});
+        itemsWrap.appendChild(row);
+      });
 
-function handleKey(key){
-  if(!menuOpen)return;
-  const menu=currentMenu();
-  if(menu.items.some(i=>i.type==="tabs")&&(key==="E"||key==="Q"||key==="e"||key==="q")){
-    const tabsItem=menu.items.find(i=>i.type==="tabs");
-    if(tabsItem){
-      let newIdx=tabsItem.activeTab||0;
-      newIdx=(key==="E"||key==="e")?(newIdx+1)%tabsItem.tabs.length:(newIdx-1+tabsItem.tabs.length)%tabsItem.tabs.length;
-      switchTab(newIdx);
-      sendGame({action:"tabSwitch",tab:tabsItem.tabs[newIdx],tabIndex:newIdx});
+      footerCount.textContent = `${nav.length ? cursorIdx + 1 : 0}/${nav.length}`;
+      itemsWrap.querySelector(".selected")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
-    return;
-  }
-  const nav=navItems();
-  const item=nav[cursorIdx];
-  switch(key){
-    case"ArrowUp":prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx-1+nav.length)%nav.length;render();break;
-    case"ArrowDown":prevCursorIdx=cursorIdx;cursorIdx=(cursorIdx+1)%nav.length;render();break;
-    case"ArrowRight":
-      if(item&&item.type==="slider")nudgeSlider(1);
-      else if(item&&item.type==="scrollable")nudgeScrollable(1);
-      break;
-    case"ArrowLeft":
-      if(item&&item.type==="slider")nudgeSlider(-1);
-      else if(item&&item.type==="scrollable")nudgeScrollable(-1);
-      else goBack();
-      break;
-    case"Enter":activate();break;
-    case"Backspace":case"Escape":goBack();break;
-    case"Insert":menuOpen?hideMenu():showMenu();break;
-  }
-}
 
-function showNotif(title,description,type){
-  type=type||"info";
-  const icons={success:"✓",error:"✕",info:"ℹ"};
-  const icon=icons[type]||"ℹ";
-  const wrap=document.getElementById("notifs");
-  const el=document.createElement("div");
-  el.className="notif "+type;
-  el.innerHTML=`
-    <span class="notif-icon">${icon}</span>
-    <span class="notif-text">
-      <span class="notif-title">${title}</span>
-      ${description?`<span class="notif-desc">${description}</span>`:""}
-    </span>
-    <span class="notif-close" onclick="dismissNotif(this)">✕</span>`;
-  wrap.appendChild(el);
-  setTimeout(()=>{const c=el.querySelector(".notif-close");if(c)dismissNotif(c);},5000);
-}
+    function activateToggle(item, value) {
+      toggleState[item.key] = Boolean(value);
+      sendGame({ action: "togglePress", key: item.key, value: toggleState[item.key] });
+      render();
+    }
 
-function dismissNotif(closeBtn){
-  const el=closeBtn.closest(".notif");
-  if(!el)return;
-  el.classList.add("hiding");
-  setTimeout(()=>el.remove(),250);
-}
+    function activate() {
+      const item = currentSelected();
+      if (!item) return;
+      if (item.type === "submenu") {
+        const target = item.target || item.page;
+        if (!target || !MENUS[target]) return;
+        stack.push(target);
+        cursorIdx = 0;
+        previousCursorIdx = 0;
+        activeTabIndex = 0;
+        sendGame({ action: "navigate", menu: target });
+        render();
+      } else if (item.type === "toggle") {
+        activateToggle(item, !Boolean(toggleState[item.key]));
+      } else if (item.type === "action") {
+        sendGame({ action: "run", label: item.label || "", id: item.id || "" });
+      } else {
+        sendGame({ action: "run", label: item.label || "", id: item.id || "" });
+      }
+    }
 
-/* ── KEYBIND SELECTOR ── */
-(function(){
-  const kbOverlay=document.getElementById("kb-overlay");
-  const IGNORED=new Set(["Shift","Control","Alt","Meta","OS","CapsLock"]);
-  const MOUSE_NAMES=["Left Click","Middle Click","Right Click","Mouse 4","Mouse 5","Mouse 6","Mouse 7","Mouse 8"];
+    function goBack() {
+      if (stack.length > 1) {
+        stack.pop();
+        cursorIdx = 0;
+        previousCursorIdx = 0;
+        activeTabIndex = 0;
+        sendGame({ action: "navigate", menu: stack[stack.length - 1] });
+        render();
+      } else {
+        hideMenu();
+      }
+    }
 
-  function prettyKey(e){
-    if(e.key==="CapsLock")return "CapsLock";
-    if(IGNORED.has(e.key))return null;
-    if(e.key===" ")return "Space";
-    if(e.key==="ArrowUp")return "Arrow Up";
-    if(e.key==="ArrowDown")return "Arrow Down";
-    if(e.key==="ArrowLeft")return "Arrow Left";
-    if(e.key==="ArrowRight")return "Arrow Right";
-    return e.key.length===1?e.key.toUpperCase():e.key;
-  }
+    function switchTab(direction) {
+      const tabsItem = activeTabsItem(currentMenu());
+      if (!tabsItem || !tabsItem.tabs?.length) return;
+      activeTabIndex = (activeTabIndex + direction + tabsItem.tabs.length) % tabsItem.tabs.length;
+      cursorIdx = 0;
+      render();
+      sendGame({ action: "tabSwitch", tab: tabsItem.tabs[activeTabIndex], tabIndex: activeTabIndex });
+    }
 
-  function bindSelected(name){
-    document.getElementById("kb-label").textContent="Open key set to: "+name;
-    document.getElementById("kb-cursor").style.animation="none";
-    document.getElementById("kb-cursor").style.opacity="0";
-    sendGame({action:"keybindSelected",key:name});
-    setTimeout(()=>{document.getElementById("kb-overlay").classList.add("hidden");showMenu();},900);
-  }
+    function handleKey(key) {
+      if (!menuOpen) return;
+      const nav = navItems(currentMenu());
+      if (key === "E" || key === "e") { switchTab(1); return; }
+      if (key === "Q" || key === "q") { switchTab(-1); return; }
+      switch (key) {
+        case "ArrowUp":
+          previousCursorIdx = cursorIdx;
+          cursorIdx = (cursorIdx - 1 + Math.max(nav.length, 1)) % Math.max(nav.length, 1);
+          render();
+          break;
+        case "ArrowDown":
+          previousCursorIdx = cursorIdx;
+          cursorIdx = (cursorIdx + 1) % Math.max(nav.length, 1);
+          render();
+          break;
+        case "Enter":
+          activate();
+          break;
+        case "Backspace":
+        case "Escape":
+          goBack();
+          break;
+      }
+    }
 
-  window.addEventListener("keydown",function onKbPick(e){
-    const name=prettyKey(e);
-    if(!name)return;
-    e.preventDefault();
-    window.removeEventListener("keydown",onKbPick,true);
-    kbOverlay.removeEventListener("mousedown",onMousePick);
-    bindSelected(name);
-  },true);
+    function showMenu() {
+      menuOpen = true;
+      overlay.classList.add("visible");
+      render();
+    }
 
-  function onMousePick(e){
-    e.preventDefault();
-    kbOverlay.removeEventListener("mousedown",onMousePick);
-    const name=MOUSE_NAMES[e.button]||("Mouse "+e.button);
-    bindSelected(name);
-  }
-  kbOverlay.addEventListener("mousedown",onMousePick);
-})();
+    function hideMenu() {
+      menuOpen = false;
+      overlay.classList.remove("visible");
+    }
 
+    function showNotif(title, description, type) {
+      const el = document.createElement("div");
+      el.className = `notif ${type || "info"}`;
+      el.innerHTML = `<span class="notif-icon">${type === "success" ? "✓" : type === "error" ? "✕" : "ℹ"}</span><span class="notif-text"><span class="notif-title"></span><span class="notif-desc"></span></span><span class="notif-close">✕</span>`;
+      el.querySelector(".notif-title").textContent = title || "";
+      el.querySelector(".notif-desc").textContent = description || "";
+      el.querySelector(".notif-close").addEventListener("click", () => el.remove());
+      document.getElementById("notifs").appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }
 
-  /* ── PLAYER INFO BOX ── */
-const pib = document.getElementById("player-info-box");
+    function applyMenus(menus) {
+      Object.keys(MENUS).forEach(key => { if (key !== "main") delete MENUS[key]; });
+      Object.assign(MENUS, menus || {});
+      if (!MENUS.main) MENUS.main = { title: "main", items: [] };
+      stack = ["main"];
+      cursorIdx = 0;
+      previousCursorIdx = 0;
+      activeTabIndex = 0;
+      render();
+    }
 
-function showPlayerInfo(data) {
-  document.getElementById("pib-name").textContent     = data.name       || "Unknown";
-  document.getElementById("pib-serverid").textContent = data.serverId   || "?";
-  document.getElementById("pib-distance").textContent = data.distance   != null ? data.distance + "m"    : "—";
-  document.getElementById("pib-vehicle").textContent  = data.vehicle    || "On Foot";
-  document.getElementById("pib-weapon").textContent   = data.weapon     || "Unarmed";
-  document.getElementById("pib-speed").textContent    = data.speed      != null ? data.speed + "km/h"    : "—";
+    function normaliseItem(item, fallbackType) {
+      const value = typeof item === "string" ? { label: item } : (item || {});
+      return {
+        ...value,
+        type: value.type || fallbackType || "action",
+        label: value.label || "Item",
+        id: value.id || String(value.label || "item").toLowerCase().replace(/[^a-z0-9]+/g, "_"),
+      };
+    }
 
-  const hp    = Math.max(0, Math.min(100, data.health ?? 100));
-  const armor = Math.max(0, Math.min(100, data.armor  ?? 0));
-  document.getElementById("pib-hp-pct").textContent    = hp    + "%";
-  document.getElementById("pib-armor-pct").textContent = armor + "%";
-  document.getElementById("pib-hp-bar").style.width    = hp    + "%";
-  document.getElementById("pib-armor-bar").style.width = armor + "%";
+    /* Optional browser API; the initial template still has no controls. */
+    window.WaveUI = {
+      createPage(page) {
+        const value = normaliseItem(page, "submenu");
+        value.target = value.target || value.id;
+        MENUS.main.items.push(value);
+        MENUS[value.target] = MENUS[value.target] || { title: value.label, items: [] };
+        render();
+        return value.target;
+      },
+      createTopTab(pageKey, tab) {
+        const page = MENUS[pageKey];
+        if (!page) return null;
+        let tabs = page.items.find(item => item.type === "tabs");
+        if (!tabs) { tabs = { type: "tabs", tabs: [], activeTab: 0 }; page.items.unshift(tabs); }
+        const value = typeof tab === "string" ? tab : tab.label;
+        if (!tabs.tabs.includes(value)) tabs.tabs.push(value);
+        render();
+        return value;
+      },
+      createButton(pageKey, button) {
+        const page = MENUS[pageKey];
+        if (!page) return null;
+        page.items.push(normaliseItem(button, "action"));
+        render();
+        return button.id;
+      },
+      createToggle(pageKey, toggle) {
+        const page = MENUS[pageKey];
+        if (!page) return null;
+        const value = normaliseItem(toggle, "toggle");
+        toggleState[value.key || value.id] = Boolean(value.defaultOn || value.value);
+        page.items.push(value);
+        render();
+        return value.id;
+      },
+      setToolTipForPage(pageKey, text) {
+        if (!MENUS[pageKey]) return false;
+        MENUS[pageKey].tooltip = String(text || "");
+        return true;
+      },
+      setToggle(pageKey, key, value) {
+        if (!MENUS[pageKey]) return false;
+        toggleState[key] = Boolean(value);
+        render();
+        return true;
+      },
+      scroll(direction) {
+        const nav = navItems(currentMenu());
+        if (!nav.length) return;
+        cursorIdx = (cursorIdx + Number(direction || 0) + nav.length) % nav.length;
+        render();
+      },
+      getState() {
+        return { page: stack[stack.length - 1], index: cursorIdx + 1, selected: currentSelected()?.label || null };
+      }
+    };
 
-  pib.classList.remove("pib-hidden");
-}
+    window.addEventListener("message", event => {
+      let message;
+      try { message = typeof event.data === "string" ? JSON.parse(event.data) : event.data; } catch (_) { return; }
+      if (!message) return;
 
-function hidePlayerInfo() {
-  pib.classList.add("pib-hidden");
-}
+      switch (message.action) {
+        case "loadMenus":
+          applyMenus(message.menus || message.data || {});
+          break;
+        case "show": showMenu(); break;
+        case "hide": hideMenu(); break;
+        case "toggle": menuOpen ? hideMenu() : showMenu(); break;
+        case "key": handleKey(message.key); break;
+        case "navigate":
+          if (MENUS[message.menu]) { stack = [message.menu]; cursorIdx = 0; activeTabIndex = 0; render(); }
+          break;
+        case "updateToggle":
+        case "setToggle":
+          if (message.key != null) { toggleState[message.key] = Boolean(message.value); render(); }
+          break;
+        case "notify": showNotif(message.title, message.description, message.notifType); break;
+      }
+    });
 
-// Listen for updates from Lua
-window.addEventListener("message", ev => {
-  let msg;
-  try { msg = typeof ev.data === "string" ? JSON.parse(ev.data) : ev.data; } catch { return; }
-  if (!msg || msg._crown) return;
-  if (msg.action === "playerInfo") {
-    if (msg.visible === false) { hidePlayerInfo(); return; }
-    showPlayerInfo(msg);
-  }
-});
-
-
-
-
-  
-/* ── INIT ── */
-applyTheme("Wave"); // start on Wave (ocean blue) theme
-
-setTimeout(()=>showNotif("Wave Menu","Initializing bypasses & account data...","info"),400);
-setTimeout(()=>showNotif("Bypasses","In-game bypasses loaded successfully!","success"),1400);
-setTimeout(()=>showNotif("Ready","Wave Menu loaded!","info"),2400);
-</script>
+    /* The template intentionally has no static controls. */
+  </script>
 </body>
 </html>
