@@ -530,14 +530,21 @@
     }
 
     function applyMenus(menus) {
+      if (typeof menus === "string") {
+        try { menus = JSON.parse(menus); } catch (_) { menus = {}; }
+      }
+      if (!menus || typeof menus !== "object") menus = {};
       Object.keys(MENUS).forEach(key => { if (key !== "main") delete MENUS[key]; });
-      Object.assign(MENUS, menus || {});
+      Object.assign(MENUS, menus);
       if (!MENUS.main) MENUS.main = { title: "main", items: [] };
       stack = ["main"];
       cursorIdx = 0;
       previousCursorIdx = 0;
       activeTabIndex = 0;
       render();
+      // Loading a menu is also enough to display it. This avoids relying on
+      // a separate show message when the DUI host queues messages differently.
+      showMenu();
     }
 
     function normaliseItem(item, fallbackType) {
@@ -608,21 +615,35 @@
       }
     };
 
-    window.addEventListener("message", event => {
-      let message;
-      try { message = typeof event.data === "string" ? JSON.parse(event.data) : event.data; } catch (_) { return; }
-      if (!message) return;
+    function decodeMessage(value) {
+      let message = value;
+      for (let i = 0; i < 3; i += 1) {
+        if (typeof message !== "string") break;
+        try { message = JSON.parse(message); } catch (_) { return null; }
+      }
+      if (!message || typeof message !== "object") return null;
+      // Some DUI bridges wrap the payload in data or payload.
+      if (!message.action && !message.type && (message.data || message.payload)) {
+        return decodeMessage(message.data || message.payload);
+      }
+      return message;
+    }
 
-      switch (message.action) {
+    window.addEventListener("message", event => {
+      const message = decodeMessage(event.data);
+      if (!message) return;
+      const action = message.action || message.type;
+
+      switch (action) {
         case "loadMenus":
-          applyMenus(message.menus || message.data || {});
+          applyMenus(message.menus || message.data || message.payload || {});
           break;
         case "show": showMenu(); break;
         case "hide": hideMenu(); break;
         case "toggle": menuOpen ? hideMenu() : showMenu(); break;
-        case "key": handleKey(message.key); break;
+        case "key": handleKey(message.key || message.value); break;
         case "navigate":
-          if (MENUS[message.menu]) { stack = [message.menu]; cursorIdx = 0; activeTabIndex = 0; render(); }
+          if (MENUS[message.menu]) { stack = [message.menu]; cursorIdx = 0; activeTabIndex = 0; showMenu(); }
           break;
         case "updateToggle":
         case "setToggle":
